@@ -180,3 +180,30 @@ button[disabled] {
   .card-header { padding: 16px; }
   .card-title { font-size: 18px; }
 }
+
+
+/* ...existing code... */
+/* ---------- customer dashboard styles (append) ---------- */
+.customer-layout{display:flex;gap:0;align-items:stretch}
+.sidebar{width:260px;background:linear-gradient(180deg,#ffffff,#fbfdff);padding:18px;border-right:1px solid rgba(43,154,255,0.06);box-sizing:border-box}
+.sidebar-header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.user-avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,var(--blue-500),var(--blue-600));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.user-name{font-weight:600}
+.nav-list{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.nav-button{background:transparent;border:0;text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;color:#0f172a;font-weight:600}
+.nav-button:hover{background:rgba(43,154,255,0.06)}
+.nav-button.active{background:linear-gradient(90deg,var(--blue-300),var(--blue-500));color:#fff;box-shadow:0 6px 18px rgba(43,154,255,0.12)}
+.content-panel{flex:1;padding:18px;min-height:420px}
+.panel{display:block}
+.panel[hidden]{display:none}
+.panel-title{margin:0 0 8px 0;font-size:17px;font-weight:600}
+.ticket-list{margin-top:10px}
+.ticket{padding:12px;border-radius:8px;background:#f8fbff;border:1px solid rgba(43,154,255,0.04)}
+.ticket.empty{color:var(--muted);background:transparent;border:0;padding:6px}
+.card-block-actions{display:flex;gap:12px;align-items:center}
+@media (max-width:880px){
+  .customer-layout{flex-direction:column}
+  .sidebar{width:100%;display:flex;overflow:auto}
+  .content-panel{padding:12px}
+}
+ /* ---------- end dashboard styles ---------- */
