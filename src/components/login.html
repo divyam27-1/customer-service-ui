@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="registration-container">
+    <section class="card">
+      <header class="card-header">
+        <h1 class="card-title">Welcome back</h1>
+        <p class="card-subtitle">Sign in to your account</p>
+      </header>
+
+      <form id="loginForm" class="card-body" method="post" action="/login" autocomplete="on" novalidate>
+        <div class="form-group">
+          <label for="loginEmail">Email address</label>
+          <input id="loginEmail" name="email" type="email" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" name="password" type="password" placeholder="Enter password" required autocomplete="current-password" />
+        </div>
+
+        <div class="form-group" style="display:flex;align-items:center;justify-content:space-between;">
+          <label style="font-size:13px;color:var(--muted);">
+            <input id="remember" name="remember" type="checkbox" style="margin-right:8px" /> Remember me
+          </label>
+          <a class="muted-link" href="#" aria-label="Forgot password">Forgot password?</a>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Sign in</button>
+          <a class="muted-link" href="registration-form.html" aria-label="Create account">Create account</a>
+        </div>
+
+        <div id="loginMessage" class="form-message" aria-live="polite"></div>
+      </form>
+    </section>
+  </main>
+
+  <script src="../js/app.js" defer></script>
+</body>
+</html>
