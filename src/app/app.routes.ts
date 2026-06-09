@@ -54,8 +54,23 @@ export const routes: Routes = [
 		path: 'support-dashboard.html',
 		redirectTo: 'support-dashboard'
 	},
+{
+  path: 'manager-dashboard',
+  loadComponent: () =>
+    import('./pages/static-page/static-page')
+      .then((m) => m.StaticPageComponent),
+  data: {
+    pageUrl: '/pages/manager/manager-dashboard-edge.html',
+    title: 'Manager Dashboard'
+  }
+},
+  {
+  path: 'manager-dashboard.html',
+  redirectTo: 'manager-dashboard'
+},
 	{
 		path: '**',
 		redirectTo: 'login'
-	}
+	},
+
 ];

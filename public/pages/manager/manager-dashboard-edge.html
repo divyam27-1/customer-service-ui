@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Manager Dashboard</title>
+
+  <style>
+    :root{
+      --bg:#f5fbff;
+      --blue:#2b9aff;
+      --muted:#6b7280;
+      --radius:12px;
+      --shadow:0 10px 30px rgba(0,0,0,0.05);
+      font-family: Inter, sans-serif;
+    }
+
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#f5fbff,#f8fbff);
+    }
+
+    .dashboard{display:flex;min-height:100vh;}
+
+    .sidebar{
+      width:280px;
+      background:white;
+      padding:20px;
+      border-right:1px solid #eee;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .brand{display:flex;gap:10px;margin-bottom:20px;}
+
+    .logo{
+      width:45px;height:45px;border-radius:10px;
+      background:linear-gradient(#2b9aff,#1f7fd6);
+      color:white;display:flex;align-items:center;justify-content:center;
+      font-weight:bold;
+    }
+
+    .nav button{
+      width:100%;padding:12px;border:none;border-radius:10px;
+      margin-bottom:10px;cursor:pointer;text-align:left;font-weight:600;
+    }
+
+    .nav button.active{
+      background:linear-gradient(#7fbfff,#2b9aff);
+      color:white;
+    }
+
+    .main{flex:1;padding:25px;}
+
+    .panel-wrap{display:flex;gap:20px;}
+
+    .ticket-panel{
+      width:40%;background:white;padding:15px;
+      border-radius:10px;box-shadow:var(--shadow);
+    }
+
+    .ticket{
+      padding:10px;background:#f8fbff;margin-bottom:8px;
+      border-radius:8px;cursor:pointer;
+    }
+
+    .ticket.selected{border:2px solid var(--blue);}
+
+    .status{padding:3px 8px;border-radius:6px;font-size:12px;}
+    .status-new{background:#eaf6ff;color:#2b9aff;}
+    .status-pending{background:#fff3cd;color:#bfa100;}
+    .status-completed{background:#d4edda;color:#2f855a;}
+    .status-escalated{background:#ffebee;color:#d32f2f;}
+
+    .details{
+      flex:1;background:white;padding:20px;
+      border-radius:10px;box-shadow:var(--shadow);
+    }
+
+    .details[hidden]{display:none;}
+
+    .profile{display:flex;align-items:center;gap:15px;margin-bottom:15px;}
+
+    .avatar{
+      width:50px;height:50px;border-radius:10px;
+      background:linear-gradient(#2b9aff,#1f7fd6);
+      color:white;display:flex;align-items:center;justify-content:center;
+      font-size:20px;font-weight:bold;
+    }
+
+    .profile-info{display:flex;flex-direction:column;}
+    .profile-info span{font-size:13px;color:gray;}
+
+    .label{color:gray;font-size:13px;}
+    .value{margin-bottom:10px;font-weight:600;}
+
+    .actions button{
+      padding:8px 14px;border:none;border-radius:8px;
+      margin-right:10px;cursor:pointer;
+    }
+
+    .complete{background:#28a745;color:white;}
+    .pending{background:#ffc107;color:black;}
+
+    table{
+      width:100%;
+      text-align:center;
+    }
+
+    table th, table td{
+      padding:10px;
+      border-bottom:1px solid #eee;
+    }
+    .logout-btn{
+  margin-top:auto;
+  background:#e5e7eb;
+  color:black;
+  font-weight:600;
+  transition:0.3s;
+}
+
+.logout-btn:active{
+  background:linear-gradient(#2b9aff,#1f7fd6);
+  color:white;
+}
+
+.logout-btn:hover{
+  background:#d1d5db;
+}
+  </style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="brand">
+      <div class="logo">M</div>
+      <div>
+        <div><b>Manager</b></div>
+        <div style="font-size:12px;color:gray;">manager@email.com</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button id="btnDashboard" class="active" onclick="showPage('dashboard')">Dashboard</button>
+      <button id="btnSLA" onclick="showPage('sla')">SLA Monitoring</button>
+
+
+      <button class="logout-btn" onclick="logout()">
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboardPage">
+      <h2>Manager Dashboard</h2>
+
+      <div style="margin-bottom:15px;">
+        <button onclick="renderTickets('all')">All</button>
+        <button onclick="renderTickets('new')">New</button>
+        <button onclick="renderTickets('pending')">Pending</button>
+        <button onclick="renderTickets('completed')">Completed</button>
+        <button onclick="renderTickets('escalated')">Escalated</button>
+      </div>
+
+      <div class="panel-wrap">
+
+        <div class="ticket-panel">
+          <h3>Ticket List</h3>
+          <div id="ticketList"></div>
+        </div>
+
+        <div class="details" id="detailsPanel" hidden>
+
+          <div class="profile">
+            <div class="avatar" id="avatar">U</div>
+            <div class="profile-info">
+              <div id="userName"></div>
+              <span id="userEmail"></span>
+            </div>
+          </div>
+
+          <div class="label">ID</div>
+          <div class="value" id="ticketId"></div>
+
+          <div class="label">Category</div>
+          <div class="value" id="ticketCategory"></div>
+
+          <div class="label">Subcategory</div>
+          <div class="value" id="ticketSubcategory"></div>
+
+          <div class="label">Status</div>
+          <div class="value" id="ticketStatus"></div>
+
+          <div class="label">Description</div>
+          <div class="value" id="ticketDescription"></div>
+
+          <div class="actions">
+            <button class="complete" onclick="markComplete()">Completed</button>
+            <button class="pending" id="pendingBtn" onclick="markPending()">Pending</button>
+          </div>
+          <div class="label">Comments</div>
+
+
+          <textarea id="commentBox" placeholder="Add your comment..."
+                    style="width:80%; height:40px; border-radius:8px; padding:6px; margin-bottom:10px;">
+          </textarea>
+
+
+          <button onclick="addComment()"
+                  style="background:#2b9aff;color:white;border:none;padding:6px 12px;border-radius:6px;">
+            Add Comment
+          </button>
+
+          <div id="commentList" style="margin-top:5px;"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SLA PAGE -->
+    <div id="slaPage" hidden>
+
+      <h2>SLA Monitoring</h2>
+
+      <div style="display:flex;gap:15px;margin-bottom:20px;">
+        <div class="ticket-panel"><b>Total</b><div id="slaTotal"></div></div>
+        <div class="ticket-panel"><b>Breached</b><div id="slaBreach"></div></div>
+        <div class="ticket-panel"><b>Near SLA</b><div id="slaNear"></div></div>
+      </div>
+
+      <div class="ticket-panel" style="width:100%;">
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th><th>User</th><th>Status</th><th>Hours</th><th>SLA</th>
+          </tr>
+          </thead>
+          <tbody id="slaTable"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+
+  const users={
+    U1001:{name:"Abhinav Sharma",email:"abhinav@email.com"},
+    U1002:{name:"Priya Ghoshal",email:"priya@email.com"}
+  };
+
+  let tickets=[
+    {id:"T1",user_id:"U1001",category:"Banking",subcategory:"Password",description:"Reset issue",status:"new",created:new Date(Date.now()-2*3600000)},
+    {id:"T2",user_id:"U1002",category:"Account",subcategory:"Update",description:"Update address",status:"pending",created:new Date(Date.now()-10*3600000)},
+    {id:"T4",user_id:"U1002",category:"Internet Banking",subcategory:"Login Issue",description:"Unable to login",status:"pending",created:new Date(Date.now()-20*3600000)},
+    {id:"T3",user_id:"U1001",category:"Fraud",subcategory:"Unauthorized",description:"Fraud case",status:"escalated",created:new Date(Date.now()-30*3600000)}
+  ];
+
+  let selected=null;
+  let currentFilter="all";
+
+  function statusClass(s){return "status status-"+s;}
+
+  function renderTickets(filter=currentFilter){
+    currentFilter=filter;
+    let list=document.getElementById("ticketList");
+    list.innerHTML="";
+
+    let filtered=filter==="all"?tickets:tickets.filter(t=>t.status===filter);
+
+    filtered.forEach(t=>{
+      let user=users[t.user_id];
+
+      let div=document.createElement("div");
+      div.className="ticket"+(selected && selected.id===t.id ? " selected":"");
+
+      div.innerHTML=`
+        <div style="font-weight:700;">${t.category} → ${t.subcategory}</div>
+        <div style="font-size:12px;color:gray;margin-top:4px;">
+          ${t.id} | <span class="${statusClass(t.status)}">${t.status}</span>
+        </div>
+        <div style="font-size:12px;color:#555;margin-top:4px;">${user.name}</div>
+      `;
+
+      div.onclick=()=>showDetails(t);
+      list.appendChild(div);
+    });
+  }
+
+  function showDetails(t){
+    selected=t;
+    let user=users[t.user_id];
+
+    detailsPanel.hidden=false;
+
+    avatar.innerText=user.name[0];
+    userName.innerText=user.name;
+    userEmail.innerText=user.email;
+
+    ticketId.innerText=t.id;
+    ticketCategory.innerText=t.category;
+    ticketSubcategory.innerText=t.subcategory;
+    ticketStatus.innerHTML=`<span class="${statusClass(t.status)}">${t.status}</span>`;
+    ticketDescription.innerText=t.description;
+
+    /* Hide pending button if already pending */
+    document.getElementById("pendingBtn").style.display =
+      t.status === "pending" ? "none" : "inline-block";
+
+    renderTickets();
+  }
+
+  function markComplete(){ if(selected){selected.status="completed";showDetails(selected);} }
+  function markPending(){ if(selected){selected.status="pending";showDetails(selected);} }
+
+  function showPage(page){
+    dashboardPage.hidden = page!=="dashboard";
+    slaPage.hidden = page!=="sla";
+
+    //  active button switching
+    document.getElementById("btnDashboard").classList.remove("active");
+    document.getElementById("btnSLA").classList.remove("active");
+
+    if(page==="dashboard") document.getElementById("btnDashboard").classList.add("active");
+    if(page==="sla"){
+      document.getElementById("btnSLA").classList.add("active");
+      renderSLA();
+    }
+  }
+
+  function renderSLA(){
+    let total=tickets.length, breach=0, near=0;
+    let tbody=document.getElementById("slaTable");
+    tbody.innerHTML="";
+
+    tickets.forEach(t=>{
+      let hours=Math.floor((new Date()-t.created)/3600000);
+
+      let status="OK";
+      if(hours>24){status="Breached";breach++;}
+      else if(hours>18){status="Near";near++;}
+
+      tbody.innerHTML+=`
+        <tr>
+          <td>${t.id}</td>
+          <td>${users[t.user_id].name}</td>
+          <td>${t.status}</td>
+          <td>${hours}</td>
+          <td style="color:${status==="Breached"?"red":status==="Near"?"orange":"green"}">${status}</td>
+        </tr>`;
+    });
+
+    slaTotal.innerText=total;
+    slaBreach.innerText=breach;
+    slaNear.innerText=near;
+  }
+
+  renderTickets();
+  function logout(){
+  alert("Logged out successfully!");
+
+
+  window.location.href = "login.html";
+
+  // localStorage.clear();
+}
+</script>
+</body>
+</html>
