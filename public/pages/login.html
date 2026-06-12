@@ -46,6 +46,65 @@
     </section>
   </main>
 
-  <script src="../js/app.js" defer></script>
+  <script >
+   
+document.addEventListener("DOMContentLoaded", function () {
+
+  const form = document.getElementById("loginForm");
+
+  if (form) {
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const loginMessage = document.getElementById("loginMessage");
+
+      const data = {
+        emailId: document.getElementById("loginEmail").value.trim(),
+        password: document.getElementById("loginPassword").value.trim()
+      };
+
+      
+      if (!data.emailId || !data.password) {
+        loginMessage.style.color = "red";
+        loginMessage.innerText = " Please enter email and password";
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8619/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.text();
+
+        if (response.ok && !result.includes("❌")) {
+
+          // ✅ STORE SUCCESS MESSAGE
+          localStorage.setItem("loginSuccess", " Login Successful");
+
+          // ✅ DIRECT REDIRECT (NO MESSAGE HERE)
+          window.location.href = "http://localhost:4200/customer-dashboard";
+
+        } else {
+          loginMessage.style.color = "red";
+          loginMessage.innerText = result || "Login failed";
+        }
+
+      } catch (error) {
+        loginMessage.style.color = "red";
+        loginMessage.innerText = "❌ Server error. Try again.";
+      }
+    });
+  }
+
+});
+   
+
+  </script>
 </body>
 </html>
