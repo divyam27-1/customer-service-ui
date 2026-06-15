@@ -1,446 +1,183 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Customer Dashboard — Edge to Edge</title>
-  <style>
-    :root{
-      --bg-100:#f5fbff; --blue-300:#7fbfff; --blue-500:#2b9aff; --blue-600:#1f7fd6;
-      --card-bg:#ffffff; --muted:#6b7280; --radius:12px; --shadow:0 18px 50px rgba(16,45,83,0.06);
-      --border: rgba(43,154,255,0.10);
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg-100),#f8fbff);-webkit-font-smoothing:antialiased}
-    .edge-dashboard{min-height:100vh;display:flex;flex-direction:row;gap:0;align-items:stretch}
-    .sidebar{
-      width:320px;min-width:260px;background:linear-gradient(180deg,#fff,#fbfdff);
-      border-right:1px solid rgba(43,154,255,0.06);padding:28px;box-sizing:border-box;
-      display:flex;flex-direction:column;gap:18px
-    }
-    .brand{display:flex;align-items:center;gap:14px}
-    .logo{width:54px;height:54px;border-radius:12px;background:linear-gradient(180deg,var(--blue-500),var(--blue-600));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
-    .acct{display:flex;flex-direction:column}
-    .acct .name{font-weight:800}
-    .acct .sub{font-size:13px;color:var(--muted)}
-    .nav{margin-top:6px;display:flex;flex-direction:column;gap:8px}
-    .nav button{
-      background:transparent;border:0;padding:12px 14px;border-radius:10px;text-align:left;cursor:pointer;
-      font-weight:700;color:#0f172a;font-size:15px
-    }
-    .nav button:hover{background:rgba(43,154,255,0.04)}
-    .nav button.active{background:linear-gradient(90deg,var(--blue-300),var(--blue-500));color:#fff;box-shadow:0 8px 20px rgba(43,154,255,0.12)}
-    .sidebar .footer{margin-top:auto;font-size:13px;color:var(--muted)}
-    .sidebar a{color:inherit}
-    .main{flex:1;padding:28px 36px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .topbar h1{margin:0;font-size:20px}
-    .panel-wrap{flex:1;display:flex;gap:22px;align-items:flex-start}
-    .panel{flex:1;background:var(--card-bg);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);min-height:360px;box-sizing:border-box}
-    .panel h2{margin:0 0 12px 0;font-size:18px}
-    .left-col{width:420px;max-width:40%;display:flex;flex-direction:column;gap:12px}
-    .ticket-list{display:flex;flex-direction:column;gap:12px}
-    .ticket{padding:12px;border-radius:10px;border:1px solid rgba(43,154,255,0.04);background:#f8fbff}
-    .muted{color:var(--muted);font-size:13px}
-    [hidden]{display:none !important}
-    .center{display:flex;align-items:center;justify-content:center}
-    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:800}
-    .btn-primary{background:linear-gradient(180deg,var(--blue-500),var(--blue-600));color:#fff;box-shadow:0 10px 26px rgba(43,154,255,0.14)}
-    .btn-ghost{background:#f3f6fb;color:#0f172a}
-    .btn-danger{background:linear-gradient(180deg,#ff5a5a,#e33838);color:#fff;box-shadow:0 10px 26px rgba(224,59,59,0.14)}
-    .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-    label{font-size:13px;color:var(--muted);font-weight:700}
-    input[type="text"], input[type="email"], input[type="date"], select, textarea{
-      width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e8f2ff;box-sizing:border-box;font-size:14px;background:#fff
-    }
-    textarea{resize:vertical;min-height:120px}
-    .form-actions{display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#0f172a;
-      padding:6px 10px;border-radius:999px;background:#f3f6fb;border:1px solid rgba(16,45,83,0.06)
-    }
-    .callout{
-      border:1px solid var(--border);background:#ffffff;border-radius:12px;padding:12px;margin-bottom:12px
-    }
-    @media (max-width:1100px){ .left-col{max-width:46%} }
-    @media (max-width:880px){
-      .edge-dashboard{flex-direction:column}
-      .sidebar{width:100%;min-width:unset;flex:0 0 auto;display:flex;overflow:auto}
-      .panel-wrap{flex-direction:column}
-      .left-col{width:100%;max-width:100%}
-      .two-col{grid-template-columns:1fr}
-      .main{padding:18px}
-      .sidebar{padding:18px}
-    }
-  </style>
+  <title>Customer Dashboard</title>
+  <link rel="stylesheet" href="./customer.css">
 </head>
+
 <body>
-  <div class="edge-dashboard" role="application">
-    <aside class="sidebar" role="navigation" aria-label="Customer navigation">
+  <div class="edge-dashboard">
+
+    <!-- ✅ SIDEBAR -->
+    <aside class="sidebar">
       <div class="brand">
-        <div class="logo">C</div>
+        
         <div class="acct">
-          <div class="name">Customer Name</div>
-          <div class="sub">Customer portal</div>
+          <div class="name" id="userName">User</div>
+          <div class="muted" id="userEmail">Email</div>
         </div>
       </div>
 
-      <nav class="nav" id="sideNav" aria-label="Main navigation">
+      <nav class="nav" id="sideNav">
         <button class="active" data-target="dashboard">Overview</button>
-        <button data-target="viewTickets">View tickets</button>
-        <button data-target="raiseTicket">Raise ticket</button>
+        <button data-target="viewTickets">View Tickets</button>
+        <button data-target="raiseTicket">Raise Ticket</button>
         <button data-target="cardServices">Debit Card Services</button>
-        <button data-target="updateDetails">Update Details / Requests</button>
+        
       </nav>
 
       <div class="footer">
-        <div class="muted">Signed in as: user@example.com</div>
-        <div style="margin-top:10px;"><a href="../login.html" class="muted">Logout</a></div>
+        <div class="name">Signed in : User</div>
+        <button id="logoutBtn" class="btn btn-danger">Logout</button>
       </div>
     </aside>
 
+    <!-- ✅ MAIN -->
     <main class="main">
+
       <div class="topbar">
         <h1 id="pageTitle">Overview</h1>
-        <div class="center">
-          <button class="btn btn-ghost" id="refreshBtn" type="button">Refresh</button>
-          <button class="btn btn-primary" id="newTicketBtn" type="button" style="margin-left:12px">Raise Ticket</button>
+        <div>
+          <button class="btn btn-ghost" id="refreshBtn">Refresh</button>
+          <button class="btn btn-primary" id="newTicketBtn">Raise Ticket</button>
         </div>
       </div>
 
       <div class="panel-wrap">
-        <!-- left column -->
+
+        <!-- ✅ LEFT SUMMARY -->
         <div class="left-col">
-          <section class="panel" id="overviewPanel">
+          <section class="panel">
             <h2>Summary</h2>
-            <div class="muted">Quick stats</div>
 
             <div style="display:flex;gap:12px;margin-top:12px">
-              <div style="flex:1;padding:12px;border-radius:12px;background:#fff;border:1px solid rgba(16,45,83,0.04);box-shadow:0 6px 18px rgba(16,45,83,0.03)">
-                <div class="muted">Open tickets</div>
-                <div style="font-weight:900;font-size:22px;margin-top:8px" id="openCount">0</div>
+              <div class="summary-card">
+                <div class="muted">Open Tickets</div>
+                <div id="openCount">0</div>
               </div>
-              <div style="flex:1;padding:12px;border-radius:12px;background:#fff;border:1px solid rgba(16,45,83,0.04);box-shadow:0 6px 18px rgba(16,45,83,0.03)">
-                <div class="muted">Card requests</div>
-                <div style="font-weight:900;font-size:22px;margin-top:8px" id="cardCount">0</div>
+
+              <div class="summary-card">
+                <div class="muted">Card Requests</div>
+                <div id="cardCount">0</div>
               </div>
             </div>
 
-            <h3 style="margin-top:18px;margin-bottom:8px">Recent tickets</h3>
-            <div class="ticket-list" id="ticketList">
-              <div class="ticket">No tickets yet. Use Raise ticket to create one.</div>
-            </div>
+            <h3>Recent Tickets</h3>
+            <div id="ticketList" class="ticket-list"></div>
           </section>
         </div>
 
-        <!-- main content -->
-        <section class="panel" id="contentPanel">
-          <!-- Overview -->
+        <!-- ✅ CONTENT PANEL -->
+        <section class="panel">
+
+          <!-- DASHBOARD -->
           <div id="dashboard" class="view">
             <h2>Welcome</h2>
-            <p class="muted">Use the left menu to create and track service requests.</p>
-            <div class="callout">
-              <div class="pill"><strong>Tip</strong> Raise ticket for Internet Banking, Account Services, and Complaints.</div>
-              <div class="pill" style="margin-left:8px"><strong>Tip</strong> Use Debit Card Services for block/unblock/lost.</div>
-            </div>
+            <p class="muted">Use the menu to manage your requests.</p>
           </div>
 
-          <!-- View tickets -->
+          <!-- ✅ VIEW TICKETS -->
           <div id="viewTickets" class="view" hidden>
-            <h2>Your tickets</h2>
-            <div id="ticketsContainer" class="ticket-list" style="margin-top:12px"></div>
+            <h2>Your Tickets</h2>
+            <div id="ticketsContainer" class="ticket-list"></div>
           </div>
 
-          <!-- Raise ticket -->
+          <!-- ✅ RAISE TICKET -->
           <div id="raiseTicket" class="view" hidden>
-            <h2>Raise a ticket</h2>
-            <p class="muted">For: Internet Banking, Account Services, Complaints.</p>
+            <h2>Raise Ticket</h2>
 
-            <form id="raiseForm" style="margin-top:12px" enctype="multipart/form-data" method="post" action="/api/requests" novalidate>
-              <!-- IDs (ticket_id, user_id) will be set by backend -->
-              <input type="hidden" name="ticket_id" id="ticket_id" value="">
-              <input type="hidden" name="user_id" id="user_id" value="">
+            <form id="raiseForm">
 
               <div class="two-col">
                 <div class="form-row">
-                  <label for="category">Category</label>
-                  <select id="category" name="category" required>
-                    <option value="">Select category</option>
-                    <option value="Internet Banking">Internet Banking</option>
-                    <option value="Account Services">Account Services</option>
-                    <option value="Complaints">Complaints</option>
+                  <label>Category</label>
+                  <select id="category" required>
+                    <option value="">Select</option>
+                    <option>Internet Banking</option>
+                    <option>Account Services</option>
+                    <option>Complaints</option>
                   </select>
                 </div>
 
                 <div class="form-row">
-                  <label for="subcategory">Subcategory</label>
-                  <select id="subcategory" name="subcategory" required>
-                    <option value="">Select subcategory</option>
-                    <!-- populated by JS based on category -->
-                  </select>
+                  <label>Subcategory</label>
+                  <select id="subcategory" required></select>
                 </div>
               </div>
 
               <div class="form-row">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" placeholder="Explain the issue with relevant details" required></textarea>
-                <small class="muted">Include what happened, when, and what you tried.</small>
-              </div>
-
-              <div class="form-row">
-                <label for="attachments">Attachments (optional)</label>
-                <input id="attachments" name="attachments[]" type="file" accept=".png,.jpg,.jpeg,.pdf" multiple />
-                <small class="muted">Optional — server will validate file size/type.</small>
+                <label>Description</label>
+                <textarea id="description" required></textarea>
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Submit ticket</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
                 <button type="reset" class="btn btn-ghost">Reset</button>
               </div>
 
-              <div id="raiseMsg" class="muted" style="margin-top:10px"></div>
+              <div id="raiseMsg" class="muted"></div>
+
             </form>
           </div>
 
-          <!-- Debit Card Services -->
+          <!-- ✅ CARD SERVICES -->
           <div id="cardServices" class="view" hidden>
             <h2>Debit Card Services</h2>
-            <p class="muted">Block card, Unblock card, Lost card reporting.</p>
 
-            <form id="cardForm" style="margin-top:12px" enctype="multipart/form-data" method="post" action="/api/debit-cards/service" novalidate>
-              <input type="hidden" name="user_id" id="card_user_id" value="">
-              <!-- backend decides request_id / service_id -->
-              <input type="hidden" name="ticket_id" id="card_ticket_id" value="">
-              <input type="hidden" name="service_id" id="service_id" value="">
+            <form id="cardForm">
 
               <div class="two-col">
                 <div class="form-row">
-                  <label for="cardServiceType">Service</label>
-                  <select id="cardServiceType" name="service_type" required>
-                    <option value="">Select service</option>
-                    <option value="Block card">Block card</option>
-                    <option value="Unblock card">Unblock card</option>
-                    <option value="Lost card reporting">Lost card reporting</option>
+                  <label>Service</label>
+                  <select id="cardServiceType" required>
+                    <option value="">Select</option>
+                    <option value="BLOCKCARD">Block card</option>
+                    <option value="UNBLOCKCARD">Unblock card</option>
+                    <option value="LOSTCARD">Lost card reporting</option>
                   </select>
                 </div>
 
                 <div class="form-row">
-                  <label for="debitCardNumber">Debit card number</label>
-                  <input id="debitCardNumber" name="debit_card_number" type="text" placeholder="Enter card number or last 4 digits" inputmode="numeric" required />
-                  <small class="muted">Backend should validate ownership.</small>
+                  <label>Card Number (last 4 digits)</label>
+                  <input id="debitCardNumber" maxlength="4" required />
                 </div>
               </div>
 
               <div class="form-row">
-                <label for="cardComment">Comment / Details</label>
-                <textarea id="cardComment" name="comment" placeholder="Add any helpful details (location/time if card lost, etc.)" required></textarea>
-              </div>
-
-              <div class="form-row" id="lostFields" hidden>
-                <label>Lost card details (recommended)</label>
-                <div class="two-col">
-                  <input id="lostDate" name="lost_date" type="date" />
-                  <input id="lostPlace" name="lost_place" type="text" placeholder="Place / City" />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <label for="cardAttachments">Attachments (optional)</label>
-                <input id="cardAttachments" name="attachments[]" type="file" accept=".png,.jpg,.jpeg,.pdf" multiple />
+                <label>Comment</label>
+                <textarea id="cardComment" required></textarea>
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Submit request</button>
-                <button type="reset" class="btn btn-ghost">Reset</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
               </div>
 
-              <div id="cardMsg" class="muted" style="margin-top:10px"></div>
+              <div style="margin-top:15px;">
+                <button id="createCardBtn" class="btn btn-primary">
+                  Create Debit Card
+                </button>
+              </div>
+
+              <div id="createCardMsg" style="margin-top:8px;"></div>
+
+              <div id="cardMsg"></div>
+
             </form>
           </div>
 
-          <!-- Update details -->
-          <div id="updateDetails" class="view" hidden>
-            <h2>Update details / Requests</h2>
-            <form id="updateForm" style="margin-top:12px" method="post" action="/api/profile/requests" novalidate>
-              <input type="hidden" name="user_id" id="update_user_id" value="">
-              <div class="form-row">
-                <label for="changeType">Change request</label>
-                <select id="changeType" name="changeType" required>
-                  <option value="">Select</option>
-                  <option>Contact details</option>
-                  <option>Address</option>
-                  <option>Name</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="form-row">
-                <label for="changeNote">Note</label>
-                <textarea id="changeNote" name="changeNote" placeholder="Describe the change" required></textarea>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Request change</button>
-                <button type="reset" class="btn btn-ghost">Reset</button>
-              </div>
-              <div id="updateMsg" class="muted" style="margin-top:10px"></div>
-            </form>
-          </div>
+          
+
         </section>
+
       </div>
     </main>
+
   </div>
 
-  <script src="../../js/customer-dashboard.js" defer>
-    // (function(){
-    //   const nav = document.getElementById('sideNav');
-    //   const views = document.querySelectorAll('.view');
-    //   const pageTitle = document.getElementById('pageTitle');
-
-    //   // ticket demo list (UI only)
-    //   const ticketListEl = document.getElementById('ticketList');
-    //   const ticketsContainer = document.getElementById('ticketsContainer');
-    //   let tickets = [];
-
-    //   function setView(id){
-    //     views.forEach(v => { v.hidden = v.id !== id; });
-    //     nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.target === id));
-    //     const btn = document.querySelector('[data-target="'+id+'"]');
-    //     pageTitle.textContent = id === 'dashboard' ? 'Overview' : (btn ? btn.textContent : 'Dashboard');
-    //     renderTickets();
-    //   }
-
-    //   function renderTickets(){
-    //     ticketListEl.innerHTML = '';
-    //     ticketsContainer.innerHTML = '';
-    //     if (!tickets.length){
-    //       ticketListEl.innerHTML = '<div class="ticket">No tickets yet. Use Raise ticket to create one.</div>';
-    //       ticketsContainer.innerHTML = '<div class="ticket">No tickets yet.</div>';
-    //     } else {
-    //       tickets.slice().reverse().forEach(t => {
-    //         const el = document.createElement('div');
-    //         el.className = 'ticket';
-    //         el.innerHTML = '<strong>#'+t.id+'</strong><div class="muted" style="margin-top:6px">'+t.category+' → '+t.subcategory+'</div>';
-    //         ticketListEl.appendChild(el);
-
-    //         const row = document.createElement('div');
-    //         row.className = 'ticket';
-    //         row.innerHTML = '<strong>#'+t.id+' — '+t.status+'</strong><div class="muted" style="margin-top:6px">'+t.category+' → '+t.subcategory+'</div>';
-    //         ticketsContainer.appendChild(row);
-    //       });
-    //     }
-    //     document.getElementById('openCount').textContent = tickets.filter(t => t.status === 'Open').length;
-    //   }
-
-    //   // navigation
-    //   nav.addEventListener('click', (e) => {
-    //     const btn = e.target.closest('button');
-    //     if (!btn) return;
-    //     setView(btn.dataset.target);
-    //   });
-
-    //   document.getElementById('newTicketBtn').addEventListener('click', () => setView('raiseTicket'));
-    //   document.getElementById('refreshBtn').addEventListener('click', () => renderTickets());
-
-    //   // category -> subcategory mapping (Raise Ticket)
-    //   const subMap = {
-    //     "Internet Banking": [
-    //       "Password reset",
-    //       "Login issue",
-    //       "Account unlocks"
-    //     ],
-    //     "Account Services": [
-    //       "Statement request",
-    //       "Address update",
-    //       "Mobile number update"
-    //     ],
-    //     "Complaints": [
-    //       "Transaction dispute",
-    //       "Service complaint",
-    //       "General feedback"
-    //     ]
-    //   };
-
-    //   const categoryEl = document.getElementById('category');
-    //   const subEl = document.getElementById('subcategory');
-
-    //   function fillSubcategories(cat){
-    //     subEl.innerHTML = '<option value="">Select subcategory</option>';
-    //     (subMap[cat] || []).forEach(v => {
-    //       const opt = document.createElement('option');
-    //       opt.value = v;
-    //       opt.textContent = v;
-    //       subEl.appendChild(opt);
-    //     });
-    //   }
-
-    //   categoryEl.addEventListener('change', () => fillSubcategories(categoryEl.value));
-
-    //   // Raise Ticket: UI-only demo submit (backend team will replace)
-    //   const raiseForm = document.getElementById('raiseForm');
-    //   raiseForm.addEventListener('submit', (ev) => {
-    //     ev.preventDefault();
-    //     const category = categoryEl.value;
-    //     const subcategory = subEl.value;
-    //     const description = document.getElementById('description').value.trim();
-    //     const msg = document.getElementById('raiseMsg');
-
-    //     if (!category || !subcategory || !description){
-    //       msg.textContent = 'Please select Category, Subcategory, and enter Description.';
-    //       return;
-    //     }
-
-    //     const id = 'R' + (Math.floor(Math.random() * 9000) + 1000);
-    //     tickets.push({ id, category, subcategory, status: 'Open' });
-    //     msg.textContent = 'Request created (UI demo) — Ref ' + id;
-
-    //     raiseForm.reset();
-    //     fillSubcategories('');
-    //     setTimeout(() => setView('viewTickets'), 500);
-    //   });
-
-    //   // Debit Card Services: show extra fields only for lost card
-    //   const cardTypeEl = document.getElementById('cardServiceType');
-    //   const lostFields = document.getElementById('lostFields');
-    //   cardTypeEl.addEventListener('change', () => {
-    //     lostFields.hidden = cardTypeEl.value !== 'Lost card reporting';
-    //   });
-
-    //   // Card form: UI-only demo submit
-    //   const cardForm = document.getElementById('cardForm');
-    //   cardForm.addEventListener('submit', (ev) => {
-    //     ev.preventDefault();
-    //     const type = cardTypeEl.value;
-    //     const cardNo = document.getElementById('debitCardNumber').value.trim();
-    //     const comment = document.getElementById('cardComment').value.trim();
-    //     const msg = document.getElementById('cardMsg');
-
-    //     if (!type || !cardNo || !comment){
-    //       msg.textContent = 'Please select Service, provide Card number, and add Comment.';
-    //       return;
-    //     }
-
-    //     // update counter (UI demo)
-    //     const cardCount = document.getElementById('cardCount');
-    //     cardCount.textContent = (parseInt(cardCount.textContent || '0', 10) + 1).toString();
-    //     msg.textContent = 'Card request submitted (UI demo).';
-
-    //     cardForm.reset();
-    //     lostFields.hidden = true;
-    //   });
-
-    //   // Update details: UI-only demo submit
-    //   const updateForm = document.getElementById('updateForm');
-    //   updateForm.addEventListener('submit', (ev) => {
-    //     ev.preventDefault();
-    //     const msg = document.getElementById('updateMsg');
-    //     msg.textContent = 'Change request submitted (UI demo).';
-    //     updateForm.reset();
-    //   });
-
-    //   // default view
-    //   fillSubcategories('');
-    //   setView('dashboard');
-    // })();
-  </script>
+  <script src="./customer.js"></script>
 </body>
+
 </html>
