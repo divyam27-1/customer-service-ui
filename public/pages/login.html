@@ -48,62 +48,80 @@
 
   <script >
    
-document.addEventListener("DOMContentLoaded", function () {
 
-  const form = document.getElementById("loginForm");
+    document.addEventListener("DOMContentLoaded", function () {
 
-  if (form) {
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
+      const form = document.getElementById("loginForm");
 
-      const loginMessage = document.getElementById("loginMessage");
+      if (form) {
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-      const data = {
-        emailId: document.getElementById("loginEmail").value.trim(),
-        password: document.getElementById("loginPassword").value.trim()
-      };
+          const loginMessage = document.getElementById("loginMessage");
 
-      
-      if (!data.emailId || !data.password) {
-        loginMessage.style.color = "red";
-        loginMessage.innerText = " Please enter email and password";
-        return;
-      }
+          const data = {
+            emailId: document.getElementById("loginEmail").value.trim(),
+            password: document.getElementById("loginPassword").value.trim()
+          };
 
-      try {
-        const response = await fetch("http://localhost:8619/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "include",
-          body: JSON.stringify(data)
+          if (!data.emailId || !data.password) {
+            loginMessage.style.color = "red";
+            loginMessage.innerText = "Please enter email and password";
+            return;
+          }
+
+          try {
+            // ✅ LOGIN CALL
+            const response = await fetch("http://localhost:8619/api/auth/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+              const error = await response.text();
+              loginMessage.style.color = "red";
+              loginMessage.innerText = error || "Login failed";
+              return;
+            }
+
+            // ✅ STEP 2: GET USER ROLE
+            const profileRes = await fetch("http://localhost:8619/api/user/profile", {
+              method: "GET",
+              credentials: "include"
+            });
+
+            if (!profileRes.ok) {
+              throw new Error("Failed to fetch user profile");
+            }
+
+            const user = await profileRes.json();
+
+            const role = user.role; // ✅ IMPORTANT
+
+            // ✅ REDIRECT BASED ON ROLE
+            if (role === "CUSTOMER") {
+              window.location.href = "http://localhost:4200/customer-dashboard";
+            } else if (role === "CRO") {
+              window.location.href = "http://localhost:4200/support-dashboard";
+            } else if (role === "ADMIN") {
+              window.location.href = "http://localhost:4200/manager-dashboard";
+            } else {
+              window.location.href = "http://localhost:4200/login";
+            }
+
+          } catch (error) {
+            loginMessage.style.color = "red";
+            loginMessage.innerText = "❌ Server error. Try again.";
+          }
         });
-
-        const result = await response.text();
-
-        if (response.ok && !result.includes("❌")) {
-
-          // ✅ STORE SUCCESS MESSAGE
-          localStorage.setItem("loginSuccess", " Login Successful");
-
-          // ✅ DIRECT REDIRECT (NO MESSAGE HERE)
-          window.location.href = "http://localhost:4200/customer-dashboard";
-
-        } else {
-          loginMessage.style.color = "red";
-          loginMessage.innerText = result || "Login failed";
-        }
-
-      } catch (error) {
-        loginMessage.style.color = "red";
-        loginMessage.innerText = "❌ Server error. Try again.";
       }
-    });
-  }
 
-});
-   
+    });
+</script>
 
   </script>
 </body>

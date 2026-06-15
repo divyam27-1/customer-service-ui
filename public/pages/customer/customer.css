@@ -1,0 +1,75 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+}
+
+.edge-dashboard {
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #2b9aff;
+  color: white;
+  padding: 15px;
+}
+
+.sidebar button {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border: none;
+  background: white;
+  color: black;
+  cursor: pointer;
+}
+
+.sidebar button.active {
+  background: #0f172a;
+  color: white;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.panel {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+/* Tickets */
+.ticket {
+  padding: 8px;
+  border: 1px solid #ddd;
+  margin-top: 6px;
+}
+
+/* Buttons */
+.btn {
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #2b9aff;
+  color: white;
+}
+
+.btn-danger {
+  background: red;
+  color: white;
+}

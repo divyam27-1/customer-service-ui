@@ -1,4 +1,10 @@
-function renderTickets(){
+// ...existing code...
+
+let tickets = [];
+const ticketListEl = document.getElementById('ticketList');
+const ticketsContainer = document.getElementById('ticketsContainer');
+
+  function renderTickets(){
     ticketListEl.innerHTML = '';
     ticketsContainer.innerHTML = '';
     if (!tickets.length){
@@ -21,24 +27,65 @@ function renderTickets(){
   }
 
 
+// Create Debit Card       ----------------------------------------------
+
+const createCardBtn = document.getElementById("createCardBtn");
+
+if (createCardBtn) {
+  createCardBtn.addEventListener("click", async () => {
+
+    const msg = document.getElementById("createCardMsg");
+
+    try {
+      const res = await fetch("http://localhost:8619/api/cards", {
+        method: "POST",
+        credentials: "include"  // ✅ send JWT cookie
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err);
+      }
+
+      const data = await res.json();
+
+      msg.textContent = "✅ Card created successfully: " + data.debitCardNumber;
+
+      // ✅ OPTIONAL: refresh tickets/cards UI
+      fetchTickets();
+
+    } catch (err) {
+      msg.textContent = "❌ " + err.message;
+    }
+
+  });
+}
+
+
+
 // ---------GET ALL TICKETS OF CUSTOMER ---------------------------
 
 async function fetchTickets() {
   try {
+    console.log("Fetching tickets...");
+
     const res = await fetch("http://localhost:8619/api/customer/getTickets", {
       method: "GET",
       credentials: "include"
     });
 
-    if (!res.ok) return;
+    console.log("Response status:", res.status);
 
     const data = await res.json();
-    tickets = data;
+    console.log("Data:", data);
 
+    tickets = data;
     renderTickets();
 
+    console.log("Tickets have been rendered");
+
   } catch (err) {
-    console.error(err);
+    console.error("FETCH ERROR:", err);
   }
 }
 
@@ -96,10 +143,6 @@ async function loadUser() {
   const views = document.querySelectorAll('.view');
   const pageTitle = document.getElementById('pageTitle');
 
-  const ticketListEl = document.getElementById('ticketList');
-  const ticketsContainer = document.getElementById('ticketsContainer');
-  let tickets = [];
-
   function setView(id){
     views.forEach(v => { v.hidden = v.id !== id; });
     nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.target === id));
@@ -108,7 +151,7 @@ async function loadUser() {
     renderTickets();
   }
 
-  
+
 
   nav.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
@@ -117,7 +160,7 @@ async function loadUser() {
   });
 
   document.getElementById('newTicketBtn').addEventListener('click', () => setView('raiseTicket'));
-  document.getElementById('refreshBtn').addEventListener('click', () => renderTickets());
+  document.getElementById('refreshBtn').addEventListener('click', () => fetchTickets());
 
   const subMap = {
     "Internet Banking": ["Password reset","Login issue","Account unlocks"],
@@ -138,6 +181,8 @@ async function loadUser() {
     });
   }
   categoryEl.addEventListener('change', () => fillSubcategories(categoryEl.value));
+
+//   -------------------------------RAISE TICKET LOGIC ------------------------------
 
 const raiseForm = document.getElementById('raiseForm');
 
@@ -216,26 +261,58 @@ raiseForm.addEventListener('submit', async (ev) => {
     lostFields.hidden = cardTypeEl.value !== 'Lost card reporting';
   });
 
-  const cardForm = document.getElementById('cardForm');
-  cardForm.addEventListener('submit', (ev) => {
-    ev.preventDefault();
-    const type = cardTypeEl.value;
-    const cardNo = document.getElementById('debitCardNumber').value.trim();
-    const comment = document.getElementById('cardComment').value.trim();
-    const msg = document.getElementById('cardMsg');
 
-    if (!type || !cardNo || !comment){
-      msg.textContent = 'Please select Service, provide Card number, and add Comment.';
-      return;
-    }
+//   -------------------DEBIT CARD SERVICE REQUEST ------------------------------
 
-    const cardCount = document.getElementById('cardCount');
-    cardCount.textContent = (parseInt(cardCount.textContent || '0', 10) + 1).toString();
-    msg.textContent = 'Card request submitted (UI demo).';
+        const cardForm = document.getElementById("cardForm");
 
-    cardForm.reset();
-    lostFields.hidden = true;
-  });
+        cardForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const service = document.getElementById("cardServiceType").value;
+        const cardLast4 = document.getElementById("debitCardNumber").value.trim();
+        const comment = document.getElementById("cardComment").value.trim();
+        const msg = document.getElementById("cardMsg");
+
+        if (!service || !cardLast4 || cardLast4.length !== 4 || !comment) {
+            msg.textContent = "Enter valid data (last 4 digits mandatory)";
+            return;
+        }
+
+        const requestBody = {
+            category: "DEBITCARDSERVICE",
+            subcategory: service,
+            description: comment,
+            debitCardLast4Digits: cardLast4
+        };
+
+        try {
+            const res = await fetch("http://localhost:8619/api/customer/raiseTicket", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify(requestBody)
+            });
+
+            if (!res.ok) {
+            const err = await res.text();
+            throw new Error(err);
+            }
+
+            const data = await res.json();
+
+            msg.textContent = "✅ Request submitted. Ticket ID: " + data.ticketId;
+
+            cardForm.reset();
+
+        } catch (err) {
+            msg.textContent = "❌ " + err.message;
+        }
+        });
+
+        // ----------------------------------------------------------------------------
 
   const updateForm = document.getElementById('updateForm');
   updateForm.addEventListener('submit', (ev) => {
@@ -248,8 +325,6 @@ raiseForm.addEventListener('submit', async (ev) => {
   fillSubcategories('');
   setView('dashboard');
 })();
-
-let tickets = [];
 
 loadUser();
 fetchTickets();
