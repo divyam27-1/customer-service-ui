@@ -5,19 +5,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Customer Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./customer.css">
 </head>
 
 <body>
   <div class="edge-dashboard">
 
-    <!-- ✅ SIDEBAR -->
     <aside class="sidebar">
       <div class="brand">
-        
+        <div class="brand-logo">CS</div>
         <div class="acct">
           <div class="name" id="userName">User</div>
-          <div class="muted" id="userEmail">Email</div>
+          <div class="muted" id="userEmail">user@example.com</div>
         </div>
       </div>
 
@@ -26,158 +28,141 @@
         <button data-target="viewTickets">View Tickets</button>
         <button data-target="raiseTicket">Raise Ticket</button>
         <button data-target="cardServices">Debit Card Services</button>
-        
       </nav>
 
       <div class="footer">
-        <div class="name">Signed in : User</div>
+        <div class="muted-small">Signed in as User</div>
         <button id="logoutBtn" class="btn btn-danger">Logout</button>
       </div>
     </aside>
 
-    <!-- ✅ MAIN -->
     <main class="main">
-
       <div class="topbar">
         <h1 id="pageTitle">Overview</h1>
-        <div>
+        <div class="topbar-actions">
           <button class="btn btn-ghost" id="refreshBtn">Refresh</button>
-          <button class="btn btn-primary" id="newTicketBtn">Raise Ticket</button>
+          <button class="btn btn-primary" id="newTicketBtn">+ Raise Ticket</button>
         </div>
       </div>
 
       <div class="panel-wrap">
-
-        <!-- ✅ LEFT SUMMARY -->
         <div class="left-col">
           <section class="panel">
-            <h2>Summary</h2>
-
-            <div style="display:flex;gap:12px;margin-top:12px">
+            <h2 class="panel-title">Summary</h2>
+            <div class="summary-grid">
               <div class="summary-card">
-                <div class="muted">Open Tickets</div>
-                <div id="openCount">0</div>
+                <div class="summary-label">Open Tickets</div>
+                <div class="summary-value" id="openCount">0</div>
               </div>
-
               <div class="summary-card">
-                <div class="muted">Card Requests</div>
-                <div id="cardCount">0</div>
+                <div class="summary-label">Card Requests</div>
+                <div class="summary-value" id="cardCount">0</div>
               </div>
             </div>
 
-            <h3>Recent Tickets</h3>
+            <h3 class="section-subtitle">Recent Tickets</h3>
             <div id="ticketList" class="ticket-list"></div>
           </section>
         </div>
 
-        <!-- ✅ CONTENT PANEL -->
-        <section class="panel">
+        <div class="main-col">
+          <section class="panel">
+            <div id="dashboard" class="view">
+              <h2 class="panel-title">Welcome back</h2>
+              <p class="muted-text">Use the menu on the left to manage your requests, view tickets, and handle debit card services.</p>
+            </div>
 
-          <!-- DASHBOARD -->
-          <div id="dashboard" class="view">
-            <h2>Welcome</h2>
-            <p class="muted">Use the menu to manage your requests.</p>
-          </div>
+            <div id="viewTickets" class="view" hidden>
+              <h2 class="panel-title">Your Tickets</h2>
+              <div id="ticketsContainer" class="ticket-list"></div>
+            </div>
 
-          <!-- ✅ VIEW TICKETS -->
-          <div id="viewTickets" class="view" hidden>
-            <h2>Your Tickets</h2>
-            <div id="ticketsContainer" class="ticket-list"></div>
-          </div>
+            <div id="raiseTicket" class="view" hidden>
+              <h2 class="panel-title">Raise a Support Ticket</h2>
+              <p class="muted-text" style="margin-bottom: 24px;">Please provide the details of your issue below.</p>
 
-          <!-- ✅ RAISE TICKET -->
-          <div id="raiseTicket" class="view" hidden>
-            <h2>Raise Ticket</h2>
-
-            <form id="raiseForm">
-
-              <div class="two-col">
-                <div class="form-row">
-                  <label>Category</label>
-                  <select id="category" required>
-                    <option value="">Select</option>
-                    <option>Internet Banking</option>
-                    <option>Account Services</option>
-                    <option>Complaints</option>
-                  </select>
+              <form id="raiseForm">
+                <div class="two-col">
+                  <div class="form-row">
+                    <label>Category</label>
+                    <select id="category" required>
+                      <option value="">Select Category</option>
+                      <option>Internet Banking</option>
+                      <option>Account Services</option>
+                      <option>Complaints</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label>Subcategory</label>
+                    <select id="subcategory" required>
+                      <option value="">Select Subcategory</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="form-row">
-                  <label>Subcategory</label>
-                  <select id="subcategory" required></select>
+                  <label>Description</label>
+                  <textarea id="description" rows="4" placeholder="Briefly describe your issue..." required></textarea>
                 </div>
-              </div>
 
-              <div class="form-row">
-                <label>Description</label>
-                <textarea id="description" required></textarea>
-              </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                  <button type="reset" class="btn btn-ghost">Reset Form</button>
+                </div>
+                <div id="raiseMsg" class="form-message"></div>
+              </form>
+            </div>
 
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <button type="reset" class="btn btn-ghost">Reset</button>
-              </div>
+            <div id="cardServices" class="view" hidden>
+              <h2 class="panel-title">Debit Card Services</h2>
+              <p class="muted-text" style="margin-bottom: 24px;">Manage your debit cards, report lost cards, or block existing ones.</p>
 
-              <div id="raiseMsg" class="muted"></div>
+              <form id="cardForm">
+                <div class="two-col">
+                  <div class="form-row">
+                    <label>Service Type</label>
+                    <select id="cardServiceType" required>
+                      <option value="">Select an action</option>
+                      <option value="BLOCKCARD">Block card</option>
+                      <option value="UNBLOCKCARD">Unblock card</option>
+                      <option value="LOSTCARD">Lost card reporting</option>
+                    </select>
+                  </div>
 
-            </form>
-          </div>
-
-          <!-- ✅ CARD SERVICES -->
-          <div id="cardServices" class="view" hidden>
-            <h2>Debit Card Services</h2>
-
-            <form id="cardForm">
-
-              <div class="two-col">
-                <div class="form-row">
-                  <label>Service</label>
-                  <select id="cardServiceType" required>
-                    <option value="">Select</option>
-                    <option value="BLOCKCARD">Block card</option>
-                    <option value="UNBLOCKCARD">Unblock card</option>
-                    <option value="LOSTCARD">Lost card reporting</option>
-                  </select>
+                  <div class="form-row">
+                    <label>Card Number (Last 4 digits)</label>
+                    <input id="debitCardNumber" type="text" maxlength="4" placeholder="e.g. 4092" required />
+                  </div>
                 </div>
 
                 <div class="form-row">
-                  <label>Card Number (last 4 digits)</label>
-                  <input id="debitCardNumber" maxlength="4" required />
+                  <label>Additional Comment</label>
+                  <textarea id="cardComment" rows="3" placeholder="Provide any necessary details..." required></textarea>
                 </div>
-              </div>
 
-              <div class="form-row">
-                <label>Comment</label>
-                <textarea id="cardComment" required></textarea>
-              </div>
+                <div class="form-actions border-bottom">
+                  <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
 
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
+                <div class="create-card-section">
+                  <div>
+                    <h3 class="section-subtitle" style="margin-top: 0;">Need a new card?</h3>
+                    <p class="muted-text" style="font-size: 0.875rem;">Generate a new debit card linked to your account.</p>
+                  </div>
+                  <button id="createCardBtn" type="button" class="btn btn-outline-primary">
+                    Create Debit Card
+                  </button>
+                </div>
 
-              <div style="margin-top:15px;">
-                <button id="createCardBtn" class="btn btn-primary">
-                  Create Debit Card
-                </button>
-              </div>
-
-              <div id="createCardMsg" style="margin-top:8px;"></div>
-
-              <div id="cardMsg"></div>
-
-            </form>
-          </div>
-
-          
-
-        </section>
-
+                <div id="createCardMsg" class="form-message"></div>
+                <div id="cardMsg" class="form-message"></div>
+              </form>
+            </div>
+          </section>
+        </div>
       </div>
     </main>
-
   </div>
-
   <script src="./customer.js"></script>
 </body>
-
 </html>
