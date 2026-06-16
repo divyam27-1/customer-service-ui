@@ -1,30 +1,88 @@
-// ...existing code...
+document.addEventListener("DOMContentLoaded", () => {
 
-let tickets = [];
-const ticketListEl = document.getElementById('ticketList');
-const ticketsContainer = document.getElementById('ticketsContainer');
+  let tickets = [];
 
-  function renderTickets(){
+  const ticketListEl = document.getElementById('ticketList');
+  const ticketsContainer = document.getElementById('ticketsContainer');
+
+  function renderTickets() {
     ticketListEl.innerHTML = '';
     ticketsContainer.innerHTML = '';
-    if (!tickets.length){
-      ticketListEl.innerHTML = '<div class="ticket">No tickets yet. Use Raise ticket to create one.</div>';
-      ticketsContainer.innerHTML = '<div class="ticket">No tickets yet.</div>';
+
+    if (!tickets.length) {
+      ticketListEl.innerHTML = '<div class="ticket">No tickets yet</div>';
+      ticketsContainer.innerHTML = '<div class="ticket">No tickets yet</div>';
     } else {
-      tickets.slice().reverse().forEach(t => {
+      tickets.forEach(t => {
         const el = document.createElement('div');
         el.className = 'ticket';
-        el.innerHTML = '<strong>#'+t.id+'</strong><div class="muted" style="margin-top:6px">'+t.category+' → '+t.subcategory+'</div>';
+        el.innerHTML = `<strong>#${t.id}</strong><div>${t.category} → ${t.subcategory}</div>`;
         ticketListEl.appendChild(el);
 
         const row = document.createElement('div');
         row.className = 'ticket';
-        row.innerHTML = '<strong>#'+t.id+' — '+t.status+'</strong><div class="muted" style="margin-top:6px">'+t.category+' → '+t.subcategory+'</div>';
+        row.innerHTML = `<strong>#${t.id} — ${t.status}</strong>`;
         ticketsContainer.appendChild(row);
       });
     }
-    document.getElementById('openCount').textContent = tickets.filter(t => t.status === 'Open').length;
+
+    const openTickets = tickets.filter(t => t.status === "OPEN").length;
+    const closedTickets = tickets.filter(t => t.status === "CLOSED").length;
+
+    document.getElementById("openCount").textContent = openTickets;
+    document.getElementById("closedCount").textContent = closedTickets;
   }
+
+  async function fetchTickets() {
+    const res = await fetch("http://localhost:8619/api/customer/getTickets", {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    tickets = data;
+
+    renderTickets();
+  }
+
+  async function loadUser() {
+    const res = await fetch("http://localhost:8619/api/user/profile", {
+      credentials: "include"
+    });
+
+    const user = await res.json();
+
+    document.getElementById("userName").textContent =
+      user.firstName + " " + user.lastName;
+
+    document.getElementById("userEmail").textContent =
+      user.emailId;
+  }
+
+  // ✅ SAFE EVENT LISTENERS
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      window.location.href = "../login.html";
+    });
+  }
+
+  const refreshBtn = document.getElementById("refreshBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", fetchTickets);
+  }
+
+  const newBtn = document.getElementById("newTicketBtn");
+  if (newBtn) {
+    newBtn.addEventListener("click", () => {
+      document.querySelector('[data-target="raiseTicket"]').click();
+    });
+  }
+
+  // ✅ LOAD DATA
+  loadUser();
+  fetchTickets();
+
+});
 
 
 // Create Debit Card       ----------------------------------------------
@@ -120,18 +178,18 @@ async function loadUser() {
       credentials: "include"
     });
 
-    if (!res.ok) return;
+    if (!res.ok) throw new Error("User API failed");
 
     const user = await res.json();
 
     document.getElementById("userName").textContent =
-      user.firstName + " " + user.lastName;
+      (user.firstName || "") + " " + (user.lastName || "");
 
     document.getElementById("userEmail").textContent =
-      user.emailId;
+      user.emailId || "No email";
 
   } catch (err) {
-    console.error("User load failed", err);
+    console.error("User load failed:", err);
   }
 }
 
