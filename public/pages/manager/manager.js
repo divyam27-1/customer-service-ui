@@ -230,3 +230,19 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   document.cookie = "jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
   window.location.href = "../login.html";
 });
+
+
+// ---------------------------UI MANAGER COLOR CHANGE FOR SELECTED BUTTON----------------------------
+
+// --- FILTER BUTTON ACTIVE STATE LOGIC ---
+const filterButtons = document.querySelectorAll('.filters .filter-btn');
+
+filterButtons.forEach(button => {
+  button.addEventListener('click', function() {
+    // 1. Remove the 'active' class from ALL filter buttons
+    filterButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // 2. Add the 'active' class to the exact button you just clicked
+    this.classList.add('active');
+  });
+});
