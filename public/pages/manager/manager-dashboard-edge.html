@@ -7,22 +7,20 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./manager.css">
-
 </head>
 
 <body>
 
 <div class="dashboard">
 
-  <!-- ✅ SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
       <div class="logo">M</div>
-      <div>
-        <div id="managerName">Manager</div>
-        <div class="muted" id="managerEmail">manager@email.com</div>
+      <div class="acct">
+        <div class="name" id="managerName">Manager</div>
+        <div class="sub" id="managerEmail">manager@email.com</div>
       </div>
     </div>
 
@@ -31,109 +29,126 @@
       <button onclick="showPage('sla')">SLA Monitoring</button>
     </nav>
 
-    <button id="logoutBtn" class="btn-danger">Logout</button>
+    <div class="footer">
+      <button id="logoutBtn" class="btn btn-outline-danger">Logout</button>
+    </div>
   </aside>
 
-  <!-- ✅ MAIN -->
   <main class="main">
 
-    <!-- ✅ DASHBOARD -->
     <div id="dashboardPage" class="page">
+      <div class="topbar">
+        <h2>Manager Dashboard</h2>
+        <p class="muted-text">Oversee escalated tickets and monitor resolution workflows.</p>
+      </div>
 
-      <h2>Manager Dashboard</h2>
-
-      <!-- ✅ FILTERS -->
       <div class="filters">
-        <button onclick="renderTickets('ALL')">All</button>
-        <button onclick="renderTickets('PENDING_CUSTOMER')">Pending Customer</button>
-        <button onclick="renderTickets('PENDING_CRO')">Active (CRO)</button>
-        <button onclick="renderTickets('PENDING_MANAGER')">Escalated</button>
-        <button onclick="renderTickets('CLOSED_RESOLVED')">Resolved</button>
-        <button onclick="renderTickets('CLOSED_REJECTED')">Rejected</button>
+        <button class="filter-btn active" onclick="renderTickets('ALL')">All</button>
+        <button class="filter-btn" onclick="renderTickets('PENDING_CUSTOMER')">Pending Customer</button>
+        <button class="filter-btn" onclick="renderTickets('PENDING_CRO')">Active (CRO)</button>
+        <button class="filter-btn" onclick="renderTickets('PENDING_MANAGER')">Escalated</button>
+        <button class="filter-btn" onclick="renderTickets('CLOSED_RESOLVED')">Resolved</button>
+        <button class="filter-btn" onclick="renderTickets('CLOSED_REJECTED')">Rejected</button>
       </div>
 
       <div class="layout">
-
-        <!-- ✅ TICKET LIST -->
-        <div class="panel">
-          <h3>Tickets</h3>
-          <div id="ticketList"></div>
+        <div class="panel list-panel">
+          <h3 class="panel-title">Tickets</h3>
+          <div class="ticket-list" id="ticketList">
+            </div>
         </div>
 
-        <!-- ✅ DETAILS -->
-        <div class="panel" id="detailsPanel" hidden>
+        <div class="panel details-panel" id="detailsPanel" hidden>
+          <h3 class="panel-title border-bottom">Ticket Details</h3>
 
-          <h3>Ticket Details</h3>
-
-          <div class="detail-row"><b>ID:</b> <span id="ticketId"></span></div>
-          <div class="detail-row"><b>User:</b> <span id="ticketUser"></span></div>
-          <div class="detail-row"><b>Category:</b> <span id="ticketCategory"></span></div>
-          <div class="detail-row"><b>Subcategory:</b> <span id="ticketSubcategory"></span></div>
-          <div class="detail-row"><b>Status:</b> <span id="ticketStatus"></span></div>
-          <div class="detail-row"><b>Description:</b></div>
-          <div class="description" id="ticketDescription"></div>
-
-          <!-- ✅ ACTIONS -->
-          <div class="actions">
-            <button onclick="performAction('RESOLVE')" class="btn-success">Resolve</button>
-            <button onclick="performAction('REJECT')" class="btn-danger">Reject</button>
-            <button onclick="performAction('RETURN_TO_CUSTOMER')" class="btn-warning">Return to Customer</button>
+          <div class="details-grid">
+            <div class="detail-row">
+              <span class="label">Ticket ID</span>
+              <span class="value font-medium" id="ticketId"></span>
+            </div>
+            <div class="detail-row">
+              <span class="label">User</span>
+              <span class="value" id="ticketUser"></span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Category</span>
+              <span class="value" id="ticketCategory"></span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Subcategory</span>
+              <span class="value" id="ticketSubcategory"></span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Status</span>
+              <span class="value badge" id="ticketStatus"></span>
+            </div>
           </div>
 
-          <!-- ✅ COMMENT -->
-          <textarea id="commentBox" placeholder="Add remark..."></textarea>
-          <button onclick="performAction('COMMENT')" class="btn-primary">Add Comment</button>
+          <div class="detail-row desc-row">
+            <span class="label">Description</span>
+            <div class="description" id="ticketDescription"></div>
+          </div>
 
+          <div class="actions border-bottom">
+            <button onclick="performAction('RESOLVE')" class="btn btn-success">Resolve</button>
+            <button onclick="performAction('REJECT')" class="btn btn-danger">Reject</button>
+            <button onclick="performAction('RETURN_TO_CUSTOMER')" class="btn btn-warning">Return to Customer</button>
+          </div>
+
+          <div class="comment-section">
+            <label class="label">Add Remark</label>
+            <textarea id="commentBox" placeholder="Enter instructions or remarks here..."></textarea>
+            <div class="form-actions">
+              <button onclick="performAction('COMMENT')" class="btn btn-primary">Add Comment</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ✅ SLA PAGE -->
     <div id="slaPage" class="page" hidden>
-
-      <h2>CRO Performance Dashboard</h2>
+      <div class="topbar">
+        <h2>CRO Performance Dashboard</h2>
+        <p class="muted-text">Monitor Service Level Agreements and team workloads.</p>
+      </div>
 
       <div class="sla-cards">
-        <div class="card">
-          <b>Total Tickets</b>
-          <div id="slaTotal"></div>
+        <div class="card summary-card">
+          <div class="card-title">Total Tickets</div>
+          <div class="card-value" id="slaTotal">0</div>
         </div>
-
-        <div class="card">
-          <b>Pending CRO</b>
-          <div id="slaPending"></div>
+        <div class="card summary-card warning">
+          <div class="card-title">Pending CRO</div>
+          <div class="card-value" id="slaPending">0</div>
         </div>
-
-        <div class="card">
-          <b>Resolved</b>
-          <div id="slaResolved"></div>
+        <div class="card summary-card success">
+          <div class="card-title">Resolved</div>
+          <div class="card-value" id="slaResolved">0</div>
         </div>
-
-        <div class="card">
-          <b>Rejected</b>
-          <div id="slaRejected"></div>
+        <div class="card summary-card danger">
+          <div class="card-title">Rejected</div>
+          <div class="card-value" id="slaRejected">0</div>
         </div>
       </div>
 
-      <!-- ✅ CRO TABLE -->
       <div class="panel">
-        <h3>CRO Workload</h3>
-
-        <table>
-          <thead>
-            <tr>
-              <th>CRO Name</th>
-              <th>Total</th>
-              <th>Pending</th>
-              <th>Escalated</th>
-              <th>Resolved</th>
-              <th>Rejected</th>
-            </tr>
-          </thead>
-
-          <tbody id="croTable"></tbody>
-
-        </table>
+        <h3 class="panel-title" style="margin-bottom: 16px;">CRO Workload Breakdown</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>CRO Name</th>
+                <th>Total</th>
+                <th>Pending</th>
+                <th>Escalated</th>
+                <th>Resolved</th>
+                <th>Rejected</th>
+              </tr>
+            </thead>
+            <tbody id="croTable">
+              </tbody>
+          </table>
+        </div>
       </div>
 
     </div>
