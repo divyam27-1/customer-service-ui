@@ -128,9 +128,26 @@ async function performAction(action) {
 
 
 // ✅ SWITCH PAGES
-function showPage(page) {
-  document.getElementById("dashboardPage").hidden = page !== "dashboard";
-  document.getElementById("slaPage").hidden = page !== "sla";
+// Function to switch pages and update sidebar buttons
+function showPage(pageId) {
+  // 1. Hide all pages
+  document.getElementById('dashboardPage').hidden = true;
+  document.getElementById('slaPage').hidden = true;
+
+  // 2. Show the specific page the user clicked
+  document.getElementById(pageId + 'Page').hidden = false;
+
+  // 3. Remove the "active" class from ALL sidebar buttons
+  const navButtons = document.querySelectorAll('.sidebar .nav button');
+  navButtons.forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // 4. Find the exact button that was just clicked and add "active" to it
+  const clickedButton = document.querySelector(`.sidebar .nav button[onclick="showPage('${pageId}')"]`);
+  if (clickedButton) {
+    clickedButton.classList.add('active');
+  }
 }
 
 
