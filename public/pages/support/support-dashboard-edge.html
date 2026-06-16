@@ -76,18 +76,20 @@
             <div class="desc" id="ticketDescription"></div>
           </div>
           
-          <div class="details-actions border-bottom">
-            <button class="btn btn-success" id="markCompleteBtn">Mark as Completed</button>
-            <button class="btn btn-warning" id="markPendingBtn">Mark as Pending</button>
-          </div>
-          
           <div class="comment-box">
             <label for="commentInput" class="section-subtitle">Add Comment/Remark:</label>
             <textarea id="commentInput" placeholder="Add a remark or update for this ticket..." rows="3"></textarea>
             <div class="form-actions">
-               <button class="btn btn-outline" id="addCommentBtn">Add Comment</button>
+              <button class="btn btn-outline" id="addCommentBtn">Add Comment</button>
             </div>
           </div>
+
+          <div class="details-actions border-bottom">
+            <button class="btn btn-success" id="markCompleteBtn">Mark as Completed</button>
+            <button class="btn btn-warning" id="markPendingBtn">Mark as Pending</button>
+            <button class="btn btn-failure" id="markRejectedBtn">Mark as Rejected</button>
+          </div>
+
           <div class="comment-list" id="commentList"></div>
         </section>
 

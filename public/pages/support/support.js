@@ -4,7 +4,7 @@ let selectedTicket = null;
 // ✅ LOAD TICKETS FROM BACKEND
 async function fetchTickets() {
   try {
-    const res = await fetch("http://localhost:8619/api/cro/getTickets", {
+    const res = await fetch("http://localhost:8619/api/cro/getTicketsAssignedTo", {
       credentials: "include"
     });
 
@@ -90,7 +90,7 @@ function showDetails(ticket) {
   renderTickets(document.querySelector(".ticket-filters button.active").dataset.filter);
 }
 
-// ✅ CALL SERVICE ACTION API
+// CALL SERVICE ACTION API
 async function performAction(action) {
   if (!selectedTicket) return;
 
