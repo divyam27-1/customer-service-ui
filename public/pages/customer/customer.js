@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   // --- STATE ---
   let tickets = [];
+  let selectedTicket = null;
 
   // --- DOM ELEMENTS ---
   const nav = document.getElementById('sideNav');
@@ -89,6 +90,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ------------------FETCH TICKET HISTORY---------------------
+
+  async function fetchTicketHistory(ticketId) {
+  try {
+    const res = await fetch(
+      `http://localhost:8619/api/customer/getTicketHistory/${ticketId}`,
+      { credentials: "include" }
+    );
+
+    if (!res.ok) throw new Error("Failed history");
+
+    return await res.json();
+
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
+// ----------------------------------------------------
+
   // --- RENDER TICKETS IN UI ---
   function renderTickets() {
     ticketListEl.innerHTML = '';
@@ -113,9 +135,32 @@ document.addEventListener("DOMContentLoaded", () => {
       ticketListEl.appendChild(el);
 
       // Main View List
+
       const row = document.createElement('div');
       row.className = 'ticket';
-      row.innerHTML = `<strong>#${idToUse}</strong> <span style="float:right; font-size: 0.75rem; background: #e2e8f0; padding: 3px 8px; border-radius: 12px; font-weight:600;">${t.status}</span><div class="muted-text" style="font-size:0.9rem; margin-top:4px;">${t.description}</div>`;
+
+      row.innerHTML = `
+        <strong>#${idToUse}</strong> 
+        <span style="float:right; font-size: 0.75rem; background: #e2e8f0; padding: 3px 8px; border-radius: 12px; font-weight:600;">
+          ${t.status}
+        </span>
+        <div class="muted-text" style="font-size:0.9rem; margin-top:4px;">
+          ${t.description}
+        </div>
+      `;
+
+      row.onclick = () => {
+        document.querySelectorAll('#ticketsContainer .ticket')
+          .forEach(el => el.classList.remove('active'));
+
+        row.classList.add('active');
+
+        renderCustomerDetails(t);
+      };
+
+
+
+
       ticketsContainer.appendChild(row);
     });
 
@@ -213,6 +258,141 @@ document.addEventListener("DOMContentLoaded", () => {
       msg.textContent = "❌ Error: " + error.message;
     }
   });
+
+
+  // ------------------------ RENDER TICKET COMMENT ---------------------
+
+      document.getElementById("sendCommentBtn").onclick = async () => {
+
+        if (!selectedTicket) {
+          alert("Select a ticket first");
+          return;
+        }
+
+      const msg = document.getElementById("custCommentInput").value.trim();
+
+      if (!msg || !selectedTicket) return;
+
+      try {
+        const res = await fetch("http://localhost:8619/api/customer/raiseService", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ticketId: selectedTicket.ticketId,
+            serviceAction: "COMMENT",  // ✅ IMPORTANT
+            comment: msg
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err);
+        }
+
+        document.getElementById("custCommentInput").value = "";
+
+        // ✅ Refresh chat AFTER sending message
+        await renderCustomerHistory();
+
+      } catch (err) {
+        alert("❌ " + err.message);
+      }
+    };
+
+// ----------------------RENDER CUSTOMER DETAIL--------------------
+
+async function renderCustomerDetails(ticket) {
+
+  if (!ticket) return;
+
+  if (ticket.status === "CLOSED_RESOLVED" || ticket.status === "CLOSED_REJECTED") {
+    document.getElementById("custCommentInput").disabled = true;
+    document.getElementById("sendCommentBtn").disabled = true;
+  } else {
+    document.getElementById("custCommentInput").disabled = false;
+    document.getElementById("sendCommentBtn").disabled = false;
+  }
+
+  selectedTicket = ticket;
+
+  // show panel
+  document.getElementById("ticketDetailsPanel").hidden = false;
+
+  // fill header
+  document.getElementById("custTicketUser").textContent = "You";
+  document.getElementById("custTicketStatus").textContent = ticket.status;
+
+  document.getElementById("custTicketCategory").textContent =
+    ticket.category + " → " + ticket.subcategory;
+
+  await renderCustomerHistory();
+}
+
+
+// ------------------------RENDER CHAT HISTORY---------------------
+
+async function renderCustomerHistory() {
+
+  const data = await fetchTicketHistory(selectedTicket.ticketId);
+  const list = document.getElementById("custHistoryList");
+
+  list.innerHTML = "";
+
+  if (!data || !data.ticketDetails) return;
+
+  const ticket = data.ticketDetails;
+  const history = data.ticketHistory || [];
+
+  // ✅ FIRST MESSAGE (user)
+  const first = document.createElement("div");
+
+  first.innerHTML = `
+    <div class="chat-bubble chat-left">
+      ${ticket.description}
+    </div>
+    <div class="chat-time">
+      ${new Date(ticket.dateOfSubmission).toLocaleString()}
+    </div>
+  `;
+
+  list.appendChild(first);
+
+  // ✅ REST
+  history.forEach(item => {
+
+    const isUser = item.servicedBy === ticket.userId;
+
+    const sideClass = isUser ? "chat-left" : "chat-right";
+
+    const div = document.createElement("div");
+
+    div.innerHTML = `
+      ${item.oldStatus && item.newStatus ? `
+        <div class="chat-time">
+          ${item.oldStatus} → ${item.newStatus}
+        </div>
+      ` : ""}
+
+      <div class="chat-bubble ${sideClass}">
+        ${item.comment || "-"}
+      </div>
+
+      <div class="chat-time">
+        ${new Date(item.dateOfService).toLocaleString()}
+      </div>
+    `;
+
+
+    list.appendChild(div);
+
+    
+  });
+  list.scrollTop = list.scrollHeight;
+}
+
 
   // --- API: DEBIT CARD SERVICE REQUEST ---
   if (cardForm) {
