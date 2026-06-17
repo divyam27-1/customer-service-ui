@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,9 +10,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./support.css">
 </head>
+
 <body>
   <div class="support-dashboard" role="application">
-    
+
     <aside class="sidebar" role="navigation" aria-label="Support navigation">
       <div class="brand">
         <div class="logo">S</div>
@@ -33,9 +35,9 @@
       <div class="topbar">
         <h1>Tickets</h1>
       </div>
-      
+
       <div class="panel-wrap">
-        
+
         <section class="tickets-panel panel">
           <div class="ticket-filters">
             <button class="active" data-filter="all">All</button>
@@ -44,53 +46,66 @@
             <button data-filter="completed">Completed</button>
           </div>
           <div class="ticket-list" id="ticketList">
-            </div>
+          </div>
         </section>
 
         <section class="details-panel panel" id="detailsPanel" hidden>
+
+          <!-- Compact Details Header-->
           <div class="details-header">
+
+            <!-- Avatar -->
             <div class="avatar" id="userAvatar">U</div>
-            <div class="info">
+
+            <!-- User Info -->
+            <div class="user-info">
               <div class="name" id="userName">User Name</div>
               <div class="email" id="userEmail">user@email.com</div>
             </div>
-          </div>
-          
-          <div class="details-section">
-            <label>Ticket ID:</label>
-            <div class="value font-medium" id="ticketId"></div>
-            
-            <label>Category:</label>
-            <div class="value" id="ticketCategory"></div>
-            
-            <label>Subcategory:</label>
-            <div class="value" id="ticketSubcategory"></div>
-            
-            <label>Status:</label>
-            <div class="value" id="ticketStatus"></div>
-            
-            <label>Date:</label>
-            <div class="value muted-text" id="ticketDate"></div>
-            
-            <label style="align-self: flex-start; margin-top: 8px;">Description:</label>
-            <div class="desc" id="ticketDescription"></div>
-          </div>
-          
-          <div class="comment-box">
-            <label for="commentInput" class="section-subtitle">Add Comment/Remark:</label>
-            <textarea id="commentInput" placeholder="Add a remark or update for this ticket..." rows="3"></textarea>
-            <div class="form-actions">
-              <button class="btn btn-outline" id="addCommentBtn">Add Comment</button>
+
+            <!-- Ticket Info-->
+            <div class="ticket-info">
+              <div class="category" id="ticketCategoryCompact">
+                Category (Subcategory)
+              </div>
+              <div class="status" id="ticketStatusCompact">
+                PENDING
+              </div>
             </div>
           </div>
 
-          <div class="details-actions border-bottom">
-            <button class="btn btn-success" id="markCompleteBtn">Mark as Completed</button>
-            <button class="btn btn-warning" id="markPendingBtn">Mark as Pending</button>
-            <button class="btn btn-failure" id="markRejectedBtn">Mark as Rejected</button>
+          <!-- History Panel -->
+          <div class="history-section">
+            <div class="history-list" id="historyList"></div>
           </div>
 
-          <div class="comment-list" id="commentList"></div>
+          <!-- CRO Action Panel-->
+          <div class="action-panel">
+
+            <div class="action-header">
+              <div class="action-title">Add Comment / Update</div>
+              <button class="btn btn-outline" id="addCommentBtn">
+                💬 Add Comment
+              </button>
+            </div>
+
+            <textarea id="commentInput" class="comment-input"
+              placeholder="Write your update, customer note, or action remark..." rows="3"></textarea>
+
+            <div class="action-buttons">
+              <button class="btn btn-success" id="markCompleteBtn">
+                ✅ Resolve
+              </button>
+
+              <button class="btn btn-warning" id="markPendingBtn">
+                ↩️ Return to Customer
+              </button>
+
+              <button class="btn btn-danger" id="markRejectedBtn">
+                ❌ Reject
+              </button>
+            </div>
+          </div>
         </section>
 
       </div>
@@ -98,4 +113,5 @@
   </div>
   <script src="./support.js"></script>
 </body>
+
 </html>
