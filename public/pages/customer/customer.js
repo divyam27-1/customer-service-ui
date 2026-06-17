@@ -308,109 +308,98 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ----------------------RENDER CUSTOMER DETAIL--------------------
 
-async function renderCustomerDetails(ticket) {
+    async function renderCustomerDetails(ticket) {
+      if (!ticket) return;
+      
+      // Temporarily set the selected ticket so we know which ID to fetch
+      selectedTicket = ticket; 
 
-  if (!ticket) return;
+      // Show the panel
+      document.getElementById("ticketDetailsPanel").hidden = false;
 
-  const input = document.getElementById("custCommentInput");
-  const btn = document.getElementById("sendCommentBtn");
-
-  // ✅ CLOSED → disable everything
-  if (ticket.status === "CLOSED_RESOLVED" || ticket.status === "CLOSED_REJECTED") {
-    input.disabled = true;
-    btn.disabled = true;
-  }
-
-  // ✅ CUSTOMER CAN ESCALATE
-  else if (ticket.status === "PENDING_CUSTOMER") {
-    input.disabled = false;
-    btn.disabled = false;
-    btn.textContent = "Send & Escalate";
-  }
-
-  // ✅ OTHER STATES → COMMENT ONLY
-  else {
-    input.disabled = false;
-    btn.disabled = false;
-    btn.textContent = "Send Comment";
-  }
-
-  selectedTicket = ticket;
-
-  // show panel
-  document.getElementById("ticketDetailsPanel").hidden = false;
-
-  // fill header
-  document.getElementById("custTicketUser").textContent = "You";
-  document.getElementById("custTicketStatus").textContent = ticket.status;
-
-  document.getElementById("custTicketCategory").textContent =
-    ticket.category + " → " + ticket.subcategory;
-
-  await renderCustomerHistory();
-}
+      // Let the history function fetch the fresh data and handle the UI
+      await renderCustomerHistory();
+    }
 
 
-// ------------------------RENDER CHAT HISTORY---------------------
+    // ------------------------RENDER CHAT HISTORY---------------------
 
-async function renderCustomerHistory() {
+    async function renderCustomerHistory() {
+      const data = await fetchTicketHistory(selectedTicket.ticketId);
+      const list = document.getElementById("custHistoryList");
 
-  const data = await fetchTicketHistory(selectedTicket.ticketId);
-  const list = document.getElementById("custHistoryList");
+      list.innerHTML = "";
 
-  list.innerHTML = "";
+      if (!data || !data.ticketDetails) return;
 
-  if (!data || !data.ticketDetails) return;
+      const ticket = data.ticketDetails; // ✅ THIS IS THE FRESH TICKET FROM DB!
+      const history = data.ticketHistory || [];
 
-  const ticket = data.ticketDetails;
-  const history = data.ticketHistory || [];
+      // ✅ 1. UPDATE THE GLOBAL TICKET SO THE 'SEND' BUTTON KNOWS THE FRESH STATUS
+      selectedTicket = ticket; 
 
-  // ✅ FIRST MESSAGE (user)
-  const first = document.createElement("div");
+      // ✅ 2. DYNAMIC BUTTON LOGIC BASED ON FRESH STATUS
+      const input = document.getElementById("custCommentInput");
+      const btn = document.getElementById("sendCommentBtn");
 
-  first.innerHTML = `
-    <div class="chat-bubble chat-left">
-      ${ticket.description}
-    </div>
-    <div class="chat-time">
-      ${new Date(ticket.dateOfSubmission).toLocaleString()}
-    </div>
-  `;
+      if (ticket.status === "CLOSED_RESOLVED" || ticket.status === "CLOSED_REJECTED") {
+        input.disabled = true;
+        btn.disabled = true;
+      } else if (ticket.status === "PENDING_CUSTOMER") {
+        input.disabled = false;
+        btn.disabled = false;
+        btn.textContent = "Send & Escalate"; // Instantly updates!
+      } else {
+        input.disabled = false;
+        btn.disabled = false;
+        btn.textContent = "Send Comment";
+      }
 
-  list.appendChild(first);
+      // ✅ 3. UPDATE THE HEADER WITH FRESH DATA
+      document.getElementById("custTicketUser").textContent = "You";
+      document.getElementById("custTicketStatus").textContent = ticket.status;
+      document.getElementById("custTicketCategory").textContent = ticket.category + " → " + ticket.subcategory;
 
-  // ✅ REST
-  history.forEach(item => {
-
-    const isUser = item.servicedBy === ticket.userId;
-
-    const sideClass = isUser ? "chat-left" : "chat-right";
-
-    const div = document.createElement("div");
-
-    div.innerHTML = `
-      ${item.oldStatus && item.newStatus ? `
-        <div class="chat-time">
-          ${item.oldStatus} → ${item.newStatus}
+      // ✅ 4. RENDER FIRST MESSAGE (user)
+      const first = document.createElement("div");
+      first.innerHTML = `
+        <div class="chat-bubble chat-left">
+          ${ticket.description}
         </div>
-      ` : ""}
+        <div class="chat-time">
+          ${new Date(ticket.dateOfSubmission).toLocaleString()}
+        </div>
+      `;
+      list.appendChild(first);
 
-      <div class="chat-bubble ${sideClass}">
-        ${item.comment || "-"}
-      </div>
+      // ✅ 5. RENDER REST OF CHAT
+      history.forEach(item => {
+        const isUser = item.servicedBy === ticket.userId;
+        const sideClass = isUser ? "chat-left" : "chat-right";
 
-      <div class="chat-time">
-        ${new Date(item.dateOfService).toLocaleString()}
-      </div>
-    `;
+        const div = document.createElement("div");
 
+        div.innerHTML = `
+          ${item.oldStatus && item.newStatus ? `
+            <div class="chat-time" style="font-weight: 600; color: #2b9aff;">
+              ${item.oldStatus} → ${item.newStatus}
+            </div>
+          ` : ""}
 
-    list.appendChild(div);
+          <div class="chat-bubble ${sideClass}">
+            ${item.comment || "-"}
+          </div>
 
-    
-  });
-  list.scrollTop = list.scrollHeight;
-}
+          <div class="chat-time">
+            ${new Date(item.dateOfService).toLocaleString()}
+          </div>
+        `;
+
+        list.appendChild(div);
+      });
+      
+      list.scrollTop = list.scrollHeight;
+    }
 
 
   // --- API: DEBIT CARD SERVICE REQUEST ---
