@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
   loadManagerProfile();
 });
 
-
 // ✅ FETCH ALL TICKETS (combine APIs)
 async function loadAllTickets() {
   try {
@@ -34,16 +33,37 @@ async function loadAllTickets() {
     }
 
     tickets = all;
-    renderTickets("ALL");
+    renderTickets("PENDING_MANAGER");
 
   } catch (err) {
     console.error("Ticket load error:", err);
   }
 }
 
+async function fetchTicketHistory(ticketId) {
+  try {
+    const res = await fetch(
+      `http://localhost:8619/api/cro/getTicketHistory/${ticketId}`,
+      { credentials: "include" }
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch history");
+
+    const data = await res.json();
+
+    return data;
+
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 // ✅ RENDER TICKETS
 function renderTickets(filter) {
+
+  // Hide details panel each time we render tickets
+  document.getElementById("detailsPanel").hidden = true;
+
   const list = document.getElementById("ticketList");
   list.innerHTML = "";
 
@@ -55,7 +75,6 @@ function renderTickets(filter) {
 
   if (!filtered.length) {
     list.innerHTML = "<p>No tickets found</p>";
-    document.getElementById("detailsPanel").hidden = true;
     return;
   }
 
@@ -69,34 +88,109 @@ function renderTickets(filter) {
       ${new Date(t.dateOfSubmission).toLocaleDateString()}
     `;
 
-    div.onclick = () => showDetails(t);
+    div.onclick = () => renderDetails(t);
 
     list.appendChild(div);
   });
 }
 
-
-// ✅ SHOW DETAILS
-function showDetails(ticket) {
+async function renderDetails(ticket) {
   selectedTicket = ticket;
 
   document.getElementById("detailsPanel").hidden = false;
 
-  document.getElementById("ticketId").textContent = ticket.ticketId;
-  document.getElementById("ticketUser").textContent = ticket.userId;
-  document.getElementById("ticketCategory").textContent = ticket.category;
-  document.getElementById("ticketSubcategory").textContent = ticket.subcategory;
-  document.getElementById("ticketStatus").textContent = ticket.status;
-  document.getElementById("ticketDescription").textContent = ticket.description;
+  document.getElementById("userAvatar").textContent = "U";
+  document.getElementById("userName").textContent = "User ID: " + ticket.userId;
+  document.getElementById("userEmail").textContent = "-";
+
+  document.getElementById("ticketCategoryCompact").textContent = `${ticket.category} (${ticket.subcategory})`;
+  document.getElementById("ticketStatusCompact").textContent = ticket.status;
+
+  await renderSelectedTicketHistory();
 }
 
+async function renderSelectedTicketHistory() {
+
+  const ticketsData = await fetchTicketHistory(selectedTicket.ticketId);
+
+  if (!ticketsData || !ticketsData.ticketDetails) {
+    console.error("Invalid history data", ticketsData);
+    return;
+  }
+
+  const list = document.getElementById("historyList");
+  list.innerHTML = "";
+
+  const ticket = ticketsData.ticketDetails;
+  const history = ticketsData.ticketHistory || [];
+
+  // Disable action panel if ticket is closed
+  if (ticket.status === "CLOSED_RESOLVED" || ticket.status === "CLOSED_REJECTED") {
+    document.getElementById("croActionPanel").hidden = true;
+  } else {
+    document.getElementById("croActionPanel").hidden = false;
+  }
+
+  /* ✅ FIRST ITEM */
+  const first = document.createElement("div");
+  first.className = "history-item left";
+
+  first.innerHTML = `
+    <div class="history-avatar">U</div>
+
+    <div>
+      <div class="history-bubble">
+        ${ticket.description || "No description provided"}
+      </div>
+      <div class="history-time">
+        ${new Date(ticket.dateOfSubmission).toLocaleString()}
+      </div>
+    </div>
+  `;
+
+  list.appendChild(first);
+
+  /* ✅ REST */
+  history.forEach(item => {
+
+    const isUser = item.servicedBy === ticket.userId;
+    const sideClass = isUser ? "left" : "right";
+    const avatar = isUser ? "U" : "C";
+
+    const div = document.createElement("div");
+    div.className = `history-item ${sideClass}`;
+
+    div.innerHTML = `
+      <div class="history-avatar">${avatar}</div>
+
+      <div>
+
+        ${item.oldStatus && item.newStatus ? `
+          <div class="history-status">
+            ${item.oldStatus} → ${item.newStatus}
+          </div>
+        ` : ""}
+
+        <div class="history-bubble">
+          ${item.comment || "-"}
+        </div>
+
+        <div class="history-time">
+          ${new Date(item.dateOfService).toLocaleString()}
+        </div>
+      </div>
+    `;
+
+    list.appendChild(div);
+  });
+}
 
 // ✅ PERFORM ACTION (CORE LOGIC)
 async function performAction(action) {
 
   if (!selectedTicket) return;
 
-  const comment = document.getElementById("commentBox").value;
+  const comment = document.getElementById("commentInput").value;
 
   try {
     const res = await fetch("http://localhost:8619/api/cro/raiseService", {
@@ -117,15 +211,48 @@ async function performAction(action) {
       throw new Error(err);
     }
 
-    document.getElementById("commentBox").value = "";
-
-    await loadAllTickets(); // refresh
+    document.getElementById("commentInput").value = "";
 
   } catch (err) {
     alert("❌ " + err.message);
   }
 }
 
+// ✅ BUTTON ACTIONS
+document.getElementById("markCompleteBtn").onclick = async () => {
+  await performAction("RESOLVE");
+  await renderSelectedTicketHistory();
+  await loadAllTickets();
+}
+
+document.getElementById("markPendingBtn").onclick = async () => {
+  await performAction("RETURN_TO_CUSTOMER");
+  await renderSelectedTicketHistory();
+  await loadAllTickets();
+}
+
+document.getElementById("markRejectedBtn").onclick = async () => {
+  await performAction("REJECT");
+  await renderSelectedTicketHistory();
+  await loadAllTickets();
+}
+
+document.getElementById("addCommentBtn").onclick = async () => {
+  await performAction("COMMENT");
+  await renderSelectedTicketHistory();
+}
+
+// Action buttons should be enabled only when we enter text into textbox
+function toggleActionButtons() {
+  const hasText = document.getElementById("commentInput").value.trim().length > 0;
+
+  document.getElementById("addCommentBtn").disabled = !hasText;
+  document.getElementById("markCompleteBtn").disabled = !hasText;
+  document.getElementById("markPendingBtn").disabled = !hasText;
+  document.getElementById("markRejectedBtn").disabled = !hasText;
+}
+
+document.getElementById("commentInput").addEventListener("input", toggleActionButtons);
 
 // ✅ SWITCH PAGES
 // Function to switch pages and update sidebar buttons

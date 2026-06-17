@@ -14,7 +14,6 @@
 <body>
 
 <div class="dashboard">
-
   <aside class="sidebar">
     <div class="brand">
       <div class="logo">M</div>
@@ -43,10 +42,10 @@
       </div>
 
       <div class="filters">
-        <button class="filter-btn active" onclick="renderTickets('ALL')">All</button>
-        <button class="filter-btn" onclick="renderTickets('PENDING_CUSTOMER')">Pending Customer</button>
+        <button class="filter-btn" onclick="renderTickets('ALL')">All</button>
+        <button class="filter-btn active" onclick="renderTickets('PENDING_MANAGER')">Active (You)</button>
         <button class="filter-btn" onclick="renderTickets('PENDING_CRO')">Active (CRO)</button>
-        <button class="filter-btn" onclick="renderTickets('PENDING_MANAGER')">Escalated</button>
+        <button class="filter-btn" onclick="renderTickets('PENDING_CUSTOMER')">Pending Customer</button>
         <button class="filter-btn" onclick="renderTickets('CLOSED_RESOLVED')">Resolved</button>
         <button class="filter-btn" onclick="renderTickets('CLOSED_REJECTED')">Rejected</button>
       </div>
@@ -58,51 +57,64 @@
             </div>
         </div>
 
-        <div class="panel details-panel" id="detailsPanel" hidden>
-          <h3 class="panel-title border-bottom">Ticket Details</h3>
+        <section class="details-panel panel" id="detailsPanel" hidden>
+          
+          <!-- Compact Details Header-->
+          <div class="details-header">
 
-          <div class="details-grid">
-            <div class="detail-row">
-              <span class="label">Ticket ID</span>
-              <span class="value font-medium" id="ticketId"></span>
+            <!-- Avatar -->
+            <div class="avatar" id="userAvatar">U</div>
+
+            <!-- User Info -->
+            <div class="user-info">
+              <div class="name" id="userName">User Name</div>
+              <div class="email" id="userEmail">user@email.com</div>
             </div>
-            <div class="detail-row">
-              <span class="label">User</span>
-              <span class="value" id="ticketUser"></span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Category</span>
-              <span class="value" id="ticketCategory"></span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Subcategory</span>
-              <span class="value" id="ticketSubcategory"></span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Status</span>
-              <span class="value badge" id="ticketStatus"></span>
+
+            <!-- Ticket Info-->
+            <div class="ticket-info">
+              <div class="category" id="ticketCategoryCompact">
+                Category (Subcategory)
+              </div>
+              <div class="status" id="ticketStatusCompact">
+                PENDING
+              </div>
             </div>
           </div>
 
-          <div class="detail-row desc-row">
-            <span class="label">Description</span>
-            <div class="description" id="ticketDescription"></div>
+          <!-- History Panel -->
+          <div class="history-section">
+            <div class="history-list" id="historyList"></div>
           </div>
 
-          <div class="actions border-bottom">
-            <button onclick="performAction('RESOLVE')" class="btn btn-success">Resolve</button>
-            <button onclick="performAction('REJECT')" class="btn btn-danger">Reject</button>
-            <button onclick="performAction('RETURN_TO_CUSTOMER')" class="btn btn-warning">Return to Customer</button>
-          </div>
+          <!-- CRO Action Panel-->
+          <div class="action-panel" id="croActionPanel">
 
-          <div class="comment-section">
-            <label class="label">Add Remark</label>
-            <textarea id="commentBox" placeholder="Enter instructions or remarks here..."></textarea>
-            <div class="form-actions">
-              <button onclick="performAction('COMMENT')" class="btn btn-primary">Add Comment</button>
+            <div class="action-header">
+              <div class="action-title">Add Comment / Update</div>
+              <button class="btn btn-outline" id="addCommentBtn">
+                💬 Add Comment
+              </button>
+            </div>
+
+            <textarea id="commentInput" class="comment-input"
+              placeholder="Write your update, customer note, or action remark..." rows="3"></textarea>
+
+            <div class="action-buttons">
+              <button class="btn btn-success" id="markCompleteBtn">
+                ✅ Resolve
+              </button>
+
+              <button class="btn btn-warning" id="markPendingBtn">
+                ↩️ Return to Customer
+              </button>
+
+              <button class="btn btn-danger" id="markRejectedBtn">
+                ❌ Reject
+              </button>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
 
