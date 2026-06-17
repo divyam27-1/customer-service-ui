@@ -178,7 +178,7 @@ raiseForm.addEventListener('submit', async (ev) => {
     category: categoryMap[categoryUI],
     subcategory: subcategoryMap[subcategoryUI],
     description: description,
-    debitCardLast4digit: null
+    debitCardLast4Digits: null
   };
 
   try {

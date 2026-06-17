@@ -47,6 +47,7 @@ body {
   min-height: 100vh;
 }
 
+
 /* --- SIDEBAR --- */
 .sidebar {
   width: 260px;
@@ -377,4 +378,42 @@ textarea {
 
 .btn-danger:hover {
   background: var(--danger-hover);
+}
+
+/* -------------------------------CARD LIST ----------------------------- */
+
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 250px;  
+  overflow-y: auto;    
+  padding-right: 5px;
+
+}
+
+.card-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-list::-webkit-scrollbar-thumb {
+  background: #cbd5f5;
+  border-radius: 10px;
+}
+
+.card-item {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.card-number {
+  font-weight: bold;
+}
+
+.card-status {
+  font-size: 12px;
+  color: gray;
 }

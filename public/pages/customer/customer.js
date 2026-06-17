@@ -20,6 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchTickets();
   setView('dashboard');
 
+  loadCards(); // optional initial load
+
+    //  attach click handler
+    document.querySelector('[data-target="cardServices"]')
+      ?.addEventListener("click", loadCards);
+
+
   // --- NAVIGATION LOGIC ---
   function setView(id) {
     views.forEach(v => { v.hidden = v.id !== id; });
@@ -65,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- API: FETCH TICKETS ---
   async function fetchTickets() {
     try {
-      // ✅ FIXED: Updated endpoint to match backend: /api/customer/getTicketsRaisedBy
+      //  FIXED: Updated endpoint to match backend: /api/customer/getTicketsRaisedBy
       const res = await fetch("http://localhost:8619/api/customer/getTicketsRaisedBy", {
         method: "GET",
         credentials: "include"
@@ -180,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
       category: categoryMap[categoryUI],
       subcategory: subcategoryMap[subcategoryUI],
       description: description,
-      debitCardLast4digit: null
+      debitCardLast4Digits: null
     };
 
     try {
@@ -194,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error(await response.text());
 
       const data = await response.json();
-      msg.textContent = "✅ Ticket created successfully! ID: " + data.ticketId;
+      msg.textContent = " Ticket created successfully! ID: " + data.ticketId;
       raiseForm.reset();
       fillSubcategories('');
       
@@ -240,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!res.ok) throw new Error(await res.text());
 
         const data = await res.json();
-        msg.textContent = "✅ Request submitted. Ticket ID: " + data.ticketId;
+        msg.textContent = " Request submitted. Ticket ID: " + data.ticketId;
         cardForm.reset();
         await fetchTickets(); // Refresh dashboard counts
 
@@ -256,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
     createCardBtn.addEventListener("click", async () => {
       const msg = document.getElementById("createCardMsg");
       try {
-        const res = await fetch("http://localhost:8619/api/cards/create", { // Ensure endpoint matches backend mapping
+        const res = await fetch("http://localhost:8619/api/cards", { // Ensure endpoint matches backend mapping
           method: "POST",
           credentials: "include"
         });
@@ -264,12 +271,58 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!res.ok) throw new Error(await res.text());
 
         const data = await res.json();
-        msg.textContent = "✅ Card created successfully! Number: " + data.debitCardNumber;
+        msg.textContent = " Card created successfully! Number: " + data.debitCardNumber;
       } catch (err) {
         msg.textContent = "❌ Error: " + err.message;
       }
     });
   }
+
+  // ----------------------- FETCH + RENDER USER CARDS----------------------------------
+async function loadCards() {
+  try {
+    const res = await fetch("http://localhost:8619/api/cards", {
+      method: "GET",
+      credentials: "include"
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch cards");
+    }
+
+    const cards = await res.json();
+
+    const cardList = document.getElementById("cardList");
+    cardList.innerHTML = "";
+
+    if (!cards.length) {
+      cardList.innerHTML = '<div class="muted-text">No cards available</div>';
+      return;
+    }
+
+    cards.forEach(card => {
+
+    // -----------------------MASK CARD NUMBER (show only last 4 digits)----------------------
+      const last4 = card.debitCardNumber.slice(-4);
+
+      const div = document.createElement("div");
+      div.className = "card-item";
+
+      div.innerHTML = `
+        <div class="card-number">**** **** **** ${last4}</div>
+        <div class="card-status">Status: ${card.debitCardStatus}</div>
+      `;
+
+      cardList.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Card fetch error:", err);
+
+    document.getElementById("cardList").innerHTML =
+      '<div class="muted-text">Error loading cards</div>';
+  }
+}
 
   // --- GLOBAL ACTIONS ---
   const refreshBtn = document.getElementById("refreshBtn");
