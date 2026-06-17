@@ -119,6 +119,13 @@ async function renderSelectedTicketHistory() {
   const ticket = ticketsData.ticketDetails;
   const history = ticketsData.ticketHistory || [];
 
+  // Disable action panel if ticket is closed
+  if (ticket.status === "CLOSED_RESOLVED" || ticket.status === "CLOSED_REJECTED") {
+    document.getElementById("croActionPanel").hidden = true;
+  } else {
+    document.getElementById("croActionPanel").hidden = false;
+  }
+
   /* ✅ FIRST ITEM */
   const first = document.createElement("div");
   first.className = "history-item left";
