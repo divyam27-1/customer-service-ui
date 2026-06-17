@@ -264,14 +264,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       document.getElementById("sendCommentBtn").onclick = async () => {
 
-        if (!selectedTicket) {
-          alert("Select a ticket first");
-          return;
-        }
+      if (!selectedTicket) return;
 
       const msg = document.getElementById("custCommentInput").value.trim();
+      if (!msg) return;
 
-      if (!msg || !selectedTicket) return;
+      let action = "COMMENT"; // default
+
+      // ✅ ONLY when PENDING_CUSTOMER → allow escalation
+      if (selectedTicket.status === "PENDING_CUSTOMER") {
+        action = "ESCALATE_TO_CRO";
+      }
+      console.log("Action determined:", action);
 
       try {
         const res = await fetch("http://localhost:8619/api/customer/raiseService", {
@@ -282,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
           credentials: "include",
           body: JSON.stringify({
             ticketId: selectedTicket.ticketId,
-            serviceAction: "COMMENT",  // ✅ IMPORTANT
+            serviceAction: action,
             comment: msg
           })
         });
@@ -294,8 +298,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("custCommentInput").value = "";
 
-        // ✅ Refresh chat AFTER sending message
         await renderCustomerHistory();
+        await fetchTickets(); // ✅ refresh status
 
       } catch (err) {
         alert("❌ " + err.message);
@@ -308,12 +312,27 @@ async function renderCustomerDetails(ticket) {
 
   if (!ticket) return;
 
+  const input = document.getElementById("custCommentInput");
+  const btn = document.getElementById("sendCommentBtn");
+
+  // ✅ CLOSED → disable everything
   if (ticket.status === "CLOSED_RESOLVED" || ticket.status === "CLOSED_REJECTED") {
-    document.getElementById("custCommentInput").disabled = true;
-    document.getElementById("sendCommentBtn").disabled = true;
-  } else {
-    document.getElementById("custCommentInput").disabled = false;
-    document.getElementById("sendCommentBtn").disabled = false;
+    input.disabled = true;
+    btn.disabled = true;
+  }
+
+  // ✅ CUSTOMER CAN ESCALATE
+  else if (ticket.status === "PENDING_CUSTOMER") {
+    input.disabled = false;
+    btn.disabled = false;
+    btn.textContent = "Send & Escalate";
+  }
+
+  // ✅ OTHER STATES → COMMENT ONLY
+  else {
+    input.disabled = false;
+    btn.disabled = false;
+    btn.textContent = "Send Comment";
   }
 
   selectedTicket = ticket;
