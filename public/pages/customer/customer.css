@@ -64,12 +64,13 @@ body {
 }
 
 .chat-left {
-  background: #f1f5f9;
+  background: #2b9aff;
 }
 
 .chat-right {
-  background: #2b9aff;
-  color: white;
+  
+  background: #88c4ff;
+  color: black;
   margin-left: auto;
 }
 
@@ -309,6 +310,20 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  max-height: 450px;   /* ✅ FIX HEIGHT */
+  overflow-y: auto;    /* ✅ ENABLE SCROLL */
+
+  padding-right: 5px;  /* ✅ space for scrollbar */
+}
+
+.ticket-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ticket-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 
 .ticket {

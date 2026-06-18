@@ -124,6 +124,25 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("cardCount").textContent = 0;
       return;
     } 
+
+          // ✅ LIMIT TO TOP 5 ONLY
+      const recentTickets = tickets.slice(0, 5);
+
+      recentTickets.forEach(t => {
+        const idToUse = t.ticketId || t.id || 'N/A';
+
+        const el = document.createElement('div');
+        el.className = 'ticket';
+
+        el.innerHTML = `
+          <strong>#${idToUse}</strong>
+          <div class="muted-text" style="font-size:0.8rem;">
+            ${t.category} → ${t.subcategory}
+          </div>
+        `;
+
+        ticketListEl.appendChild(el);
+      });
     
     tickets.forEach(t => {
       const idToUse = t.ticketId || t.id || 'N/A';
